@@ -22,6 +22,7 @@ namespace PCMonitor
             SetConsoleCtrlHandler(cancelHandler, true);
             Console.WriteLine("程序启动!");
 
+            //读取配置
             var theme = ConfigurationManager.AppSettings["theme"];
             var cpu_index = Convert.ToInt32(ConfigurationManager.AppSettings["cpu_fan_index"]);
             var ni_name = ConfigurationManager.AppSettings["network_interface_name"];
@@ -38,9 +39,9 @@ namespace PCMonitor
             var mdp = new MonitorDataProvider(cpu_index, ni_name, start_date);
 
 
-            var virtuualScreen = new VirtualScreen();
-
-            var sr = new ScreenRender(bg_img,virtuualScreen, mdp, theme_config);
+            //var virtuualScreen = new VirtualScreen();
+            //构造渲染器
+            var sr = new ScreenRender(bg_img,Device3_5.Instance, mdp, theme_config);
 
             sr.Setup();
 
