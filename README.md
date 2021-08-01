@@ -13,7 +13,7 @@ this is a pc monitor application to drive usb screen with serial portal(com).
 ### 支持设备
 
 目前应用的支持设备为：
-本人所购买的设备 [3.5寸IPS TYPEC机箱副屏](https://s.click.taobao.com/KWodsju)
+[3.5寸IPS TYPEC机箱副屏](https://s.click.taobao.com/KWodsju)
 
 
 ### 版本历史
