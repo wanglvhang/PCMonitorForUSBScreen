@@ -7,7 +7,7 @@
       "y": 12,
       "width": 330,
       "height": 100,
-      "frontColor": "e6e6e6",
+      "frontColor": "bc1919",
       "backgroundColor": "",
       "borderColor": "999999",
       "borderWidth": 1
@@ -19,7 +19,7 @@
       "y": 122,
       "width": 330,
       "height": 100,
-      "frontColor": "e6e6e6",
+      "frontColor": "8ac40c",
       "backgroundColor": "",
 
       "borderColor": "999999",
@@ -62,15 +62,15 @@
     {
       "type": "TextLabel",
       "data": "CPU_Load",
-      "x": 400,
+      "x": 410,
       "y": 55,
-      "width": 50,
-      "height": 30,
+      "width": 54,
+      "height": 28,
       "frontColor": "efb22b",
       "backgroundColor": "",
 
       "TextFontFamily": "Bahnschrift",
-      "TextSize": 30,
+      "TextSize": 28,
       "TextStyle": "Regular",
       "TextAlignment": "Far",
       "TextLineAlignment": "Center"
@@ -127,7 +127,7 @@
       "data": "gpu_load",
       "x": 400,
       "y": 156,
-      "width": 40,
+      "width": 52,
       "height": 24,
       "frontColor": "efb22b",
       "backgroundColor": "",
@@ -168,6 +168,7 @@
       "TextLineAlignment": "Center"
     },
 
+
     {
       "type": "PercentBar",
       "data": "ram_load",
@@ -178,7 +179,6 @@
       "frontColor": "32a0c6",
       "backgroundColor": "000000"
     },
-
     {
       "type": "TextLabel",
       "data": "Network_Upload",
@@ -209,6 +209,8 @@
       "TextAlignment": "Near",
       "TextLineAlignment": "Center"
     },
+
+
     {
       "type": "TextLabel",
       "data": "Life_Days",
