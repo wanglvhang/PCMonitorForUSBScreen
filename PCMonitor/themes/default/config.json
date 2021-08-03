@@ -1,4 +1,6 @@
 {
+  "device": "inch3.5",
+
   "widgets": [
     {
       "type": "Oscillogram",

@@ -16,6 +16,10 @@ namespace USBScreen
         //屏幕需要在startup后设置好屏幕的默认的宽高像素
         void Startup();
 
+        void Restart();
+
+        void AjustScreen(bool isMirror, bool isLandscape, bool isInvert);
+
         void Shutdown();
 
         void RenderPixels(int offsetX, int offsetY, Color pixelColor, byte[] coordinates);

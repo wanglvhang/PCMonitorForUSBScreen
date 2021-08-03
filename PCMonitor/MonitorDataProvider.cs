@@ -30,13 +30,14 @@ namespace PCMonitor
 
         private string start_date_string;
 
+        private DateTime start_date;
 
 
-        public MonitorDataProvider(int cpu_fan_index = 0, string ni_name ="" ,string start_date_str = "1949/10/1")
+
+        public MonitorDataProvider(DateTime start_date,int cpu_fan_index = 0, string ni_name ="")
         {
             this.cpu_fan_index = cpu_fan_index;
             this.network_interface_name = ni_name;
-            this.start_date_string = start_date_str;
 
             var hv = new UpdateVisitor();
 
@@ -217,8 +218,6 @@ namespace PCMonitor
         {
             try
             {
-                var start_date = DateTime.Parse(this.start_date_string);
-
                 return Convert.ToSingle((DateTime.Now - start_date).TotalDays);
             }
             catch (Exception e)

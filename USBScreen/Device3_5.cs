@@ -108,8 +108,6 @@ namespace USBScreen
         public void Restart()
         {
             this.sendCMD(101, 0, 0, 0, 0);
-
-            //重启后等待，已保证其他指令可正常执行
             Thread.Sleep(3000);
         }
 

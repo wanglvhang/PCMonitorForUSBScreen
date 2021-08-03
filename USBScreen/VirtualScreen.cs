@@ -67,5 +67,15 @@ namespace USBScreen
         {
             
         }
+
+        public void Restart()
+        {
+            
+        }
+
+        public void AjustScreen(bool isMirror, bool isLandscape, bool isInvert)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

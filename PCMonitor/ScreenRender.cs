@@ -37,9 +37,11 @@ namespace PCMonitor
         {
             USBScreen.Connect();
 
-            //USBScreen.Shutdown();
-
             USBScreen.Startup();
+
+            USBScreen.Restart();//reset screen
+
+            USBScreen.AjustScreen(false, true, true);
 
             USBScreen.RenderBitmap(BGImage, 0, 0);
 
