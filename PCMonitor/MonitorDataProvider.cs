@@ -28,16 +28,16 @@ namespace PCMonitor
 
         private string network_interface_name;
 
-        private string start_date_string;
 
         private DateTime start_date;
 
 
 
-        public MonitorDataProvider(DateTime start_date,int cpu_fan_index = 0, string ni_name ="")
+        public MonitorDataProvider(DateTime startDate,int cpu_fan_index = 0, string ni_name ="")
         {
             this.cpu_fan_index = cpu_fan_index;
             this.network_interface_name = ni_name;
+            this.start_date = startDate;
 
             var hv = new UpdateVisitor();
 
@@ -81,7 +81,7 @@ namespace PCMonitor
             {
                 return getNetworkDownloadSpeed();
             }
-            else if (dataType == eMonitorDataType.Life_Days)
+            else if (dataType == eMonitorDataType.Total_Days)
             {
                 return getLifeDays();
             }

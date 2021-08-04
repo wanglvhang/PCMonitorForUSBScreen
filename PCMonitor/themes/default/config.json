@@ -215,10 +215,10 @@
 
     {
       "type": "TextLabel",
-      "data": "Life_Days",
-      "x": 334,
+      "data": "Total_Days",
+      "x": 328,
       "y": 260,
-      "width": 100,
+      "width": 110,
       "height": 30,
       "frontColor": "ffffff",
       "backgroundColor": "",

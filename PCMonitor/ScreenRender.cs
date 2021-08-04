@@ -39,7 +39,7 @@ namespace PCMonitor
 
             USBScreen.Startup();
 
-            USBScreen.Restart();//reset screen
+            //USBScreen.Restart();//reset screen
 
             USBScreen.AjustScreen(false, true, true);
 
@@ -48,27 +48,23 @@ namespace PCMonitor
             this.build();
         }
 
-        public async Task Refresh()
+        public void Refresh()
         {
-            await Task.Run(new Action(() =>
+
+            //刷新数据然后逐个render
+            foreach (var w in Widges)
             {
+                var data = getDataForWidget(w.WidgetType, w.DataType);
+                w.Render(this.USBScreen, copyWidgetBG(w), data);//渲染时包含数据的获取操作，可能导致数据的不同步 ！应该先获取全部所需数据，并对所有widges进行更新，然后再进行逐个渲染
+            }
 
-                //刷新数据然后逐个render
-                foreach (var w in Widges)
-                {
-                    var data = getDataForWidget(w.WidgetType, w.DataType);
-                    w.Render(this.USBScreen, copyWidgetBG(w), data);//渲染时包含数据的获取操作，可能导致数据的不同步 ！应该先获取全部所需数据，并对所有widges进行更新，然后再进行逐个渲染
-                }
+            if (USBScreen is VirtualScreen)
+            {
+                var vs = USBScreen as VirtualScreen;
+                vs.SaveImage();
+            }
 
-                if(USBScreen is VirtualScreen)
-                {
-                    var vs = USBScreen as VirtualScreen;
-                    vs.SaveImage();
-                }
-
-                Thread.Sleep(50);
-
-            }));
+            Thread.Sleep(50);
 
         }
 
@@ -142,7 +138,7 @@ namespace PCMonitor
                     case eMonitorDataType.GPU_Temp:
                         result_str = Math.Ceiling(raw_data.Value).ToString();
                         break;
-                    case eMonitorDataType.Life_Days:
+                    case eMonitorDataType.Total_Days:
                         //获取birthday 配置
                         result_str = raw_data.Value.ToString("f0");
                         break;
@@ -276,7 +272,7 @@ namespace PCMonitor
         Network_Upload,//B
         Network_Download,
 
-        Life_Days,
+        Total_Days,
 
 
         Custom_GPU_RAM_UsedTotal,//
