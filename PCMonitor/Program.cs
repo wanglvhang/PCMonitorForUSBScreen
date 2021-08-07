@@ -25,146 +25,133 @@ namespace PCMonitor
 
         static int Main(string[] args)
         {
-                DisbleQuickEditMode();
-                SetConsoleCtrlHandler(cancelHandler, true);
-                Console.Title = "PCMonitor";
-                Console.CursorVisible = false;
+            DisbleQuickEditMode();
+            SetConsoleCtrlHandler(cancelHandler, true);
+            Console.Title = "PCMonitor";
+            Console.CursorVisible = false;
 
-                Console.WriteLine("PCMonitor start!");
+            Console.WriteLine("PCMonitor start!");
 
-                //read configuration
-                var theme = ConfigurationManager.AppSettings["theme"];
-                var cpu_index_str = ConfigurationManager.AppSettings["cpu_fan_index"];
-                var ni_name = ConfigurationManager.AppSettings["network_interface_name"];
-                var render_interval_str = ConfigurationManager.AppSettings["render_interval"];
-                var start_date_str = ConfigurationManager.AppSettings["start_date"];
-                var task_schedule_str = ConfigurationManager.AppSettings["task_schedule"];
+            //read configuration
+            var theme = ConfigurationManager.AppSettings["theme"];
+            var cpu_index_str = ConfigurationManager.AppSettings["cpu_fan_index"];
+            var ni_name = ConfigurationManager.AppSettings["network_interface_name"];
+            var render_interval_str = ConfigurationManager.AppSettings["render_interval"];
+            var start_date_str = ConfigurationManager.AppSettings["start_date"];
+            var task_schedule_str = ConfigurationManager.AppSettings["task_schedule"];
 
-                //theme
-                if (string.IsNullOrWhiteSpace(theme))
+            //theme
+            if (string.IsNullOrWhiteSpace(theme))
+            {
+                theme = "default";
+                Console.WriteLine($"config default [theme]:{theme}");
+            }
+            else
+            {
+                Console.WriteLine($"config read [theme]:{theme}");
+            }
+
+            //cpu_index
+            int cpu_index;
+            if (int.TryParse(cpu_index_str, out cpu_index))
+            {
+                Console.WriteLine($"config read [cpu_fan_index]:{cpu_index}");
+            }
+            else
+            {
+                cpu_index = 0;
+                Console.WriteLine($"config default [cpu_fan_index]:{cpu_index}");
+            }
+
+            //network_interface_name
+            Console.WriteLine($"config read [network_interface_name]:{ni_name}");
+
+            //render_interval
+            int render_interval;
+            if (int.TryParse(render_interval_str, out render_interval))
+            {
+                Console.WriteLine($"config read [cpu_fan_index]:{render_interval}");
+            }
+            else
+            {
+                render_interval = 1000;
+                Console.WriteLine($"config default [cpu_fan_index]:{render_interval}");
+            }
+
+            //start_date
+            DateTime start_date;
+            if (DateTime.TryParse(start_date_str, out start_date))
+            {
+                Console.WriteLine($"config read [start_date]:{start_date.ToShortDateString()}");
+            }
+            else
+            {
+                start_date = DateTime.Parse("1949/10/1");
+                Console.WriteLine($"config default [start_date]:{start_date.ToShortDateString()}");
+            }
+
+
+            //task_schedule
+            bool task_schedule;
+            if (bool.TryParse(task_schedule_str, out task_schedule))
+            {
+                Console.WriteLine($"config read [task_schedule]:{task_schedule}");
+            }
+            else
+            {
+                task_schedule = false;
+                Console.WriteLine($"config default [task_schedule]:{task_schedule}");
+            }
+
+            if (task_schedule)
+            {
+                //set task schedule
+                setupTaskScheduleOnLogon();
+            }
+
+            var theme_config_path = $"{Environment.CurrentDirectory}\\themes\\{theme}\\config.json";
+            var bg_path = $"{Environment.CurrentDirectory}\\themes\\{theme}\\bg.png";
+
+            var theme_config = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_config_path));
+            var bg_img = new Bitmap(bg_path);
+            var mdp = new MonitorDataProvider(start_date, cpu_index, ni_name);
+
+
+            Screen = Device3_5.Instance;
+
+            //var virtuualScreen = new VirtualScreen();
+            //build render
+            var sr = new ScreenRender(bg_img, Screen, mdp, theme_config);
+
+            sr.Setup();
+
+
+            Console.WriteLine("start render...");
+
+
+            var current_cusor_top = Console.CursorTop;
+
+            var count = 0;
+            Stop = false;
+            while (true && !Stop)
+            {
+                Console.CursorTop = current_cusor_top;
+                Console.WriteLine($"render frame count，{count}...");
+                var now = DateTime.Now;
+                sr.Refresh();
+                var span = DateTime.Now - now;
+                Console.WriteLine($"render cost：{span.TotalMilliseconds} ms.");
+
+                span = DateTime.Now - now;
+
+                count++;
+                //if render time is lower then interval, sleep
+                if (span.TotalMilliseconds < render_interval)
                 {
-                    theme = "default";
-                    Console.WriteLine($"config default [theme]:{theme}");
-                }
-                else
-                {
-                    Console.WriteLine($"config read [theme]:{theme}");
-                }
-
-                //cpu_index
-                int cpu_index;
-                if (int.TryParse(cpu_index_str, out cpu_index))
-                {
-                    Console.WriteLine($"config read [cpu_fan_index]:{cpu_index}");
-                }
-                else
-                {
-                    cpu_index = 0;
-                    Console.WriteLine($"config default [cpu_fan_index]:{cpu_index}");
-                }
-
-                //network_interface_name
-                Console.WriteLine($"config read [network_interface_name]:{ni_name}");
-
-                //render_interval
-                int render_interval;
-                if (int.TryParse(render_interval_str, out render_interval))
-                {
-                    Console.WriteLine($"config read [cpu_fan_index]:{render_interval}");
-                }
-                else
-                {
-                    render_interval = 1000;
-                    Console.WriteLine($"config default [cpu_fan_index]:{render_interval}");
-                }
-
-                //start_date
-                DateTime start_date;
-                if (DateTime.TryParse(start_date_str, out start_date))
-                {
-                    Console.WriteLine($"config read [start_date]:{start_date.ToShortDateString()}");
-                }
-                else
-                {
-                    start_date = DateTime.Parse("1949/10/1");
-                    Console.WriteLine($"config default [start_date]:{start_date.ToShortDateString()}");
-                }
-
-
-                //task_schedule
-                bool task_schedule;
-                if (bool.TryParse(task_schedule_str, out task_schedule))
-                {
-                    Console.WriteLine($"config read [task_schedule]:{task_schedule}");
-                }
-                else
-                {
-                    task_schedule = false;
-                    Console.WriteLine($"config default [task_schedule]:{task_schedule}");
-                }
-
-                if (task_schedule)
-                {
-                    //set task schedule
-                    setupTaskScheduleOnLogon();
-                }
-
-                var theme_config_path = $"{Environment.CurrentDirectory}\\themes\\{theme}\\config.json";
-                var bg_path = $"{Environment.CurrentDirectory}\\themes\\{theme}\\bg.png";
-
-                var theme_config = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_config_path));
-                var bg_img = new Bitmap(bg_path);
-                var mdp = new MonitorDataProvider(start_date, cpu_index, ni_name);
-
-
-                Screen = Device3_5.Instance;
-
-                //var virtuualScreen = new VirtualScreen();
-                //build render
-                var sr = new ScreenRender(bg_img, Screen, mdp, theme_config);
-
-                sr.Setup();
-
-
-                Console.WriteLine("start render...");
-
-
-                var current_cusor_top = Console.CursorTop;
-
-                var count = 0;
-                Stop = false;
-                while (true && !Stop)
-                {
-                    Console.CursorTop = current_cusor_top;
-                    Console.WriteLine($"render frame count，{count}...");
-                    var now = DateTime.Now;
-                    sr.Refresh();
-                    var span = DateTime.Now - now;
-                    Console.WriteLine($"render cost：{span.TotalMilliseconds} ms.");
-
-                    span = DateTime.Now - now;
-
-                    count++;
-                    //if render time is lower then interval, sleep
-                    if (span.TotalMilliseconds < render_interval)
-                    {
-                        Thread.Sleep(render_interval - (int)span.TotalMilliseconds);
-                    }
-
+                    Thread.Sleep(render_interval - (int)span.TotalMilliseconds);
                 }
 
-            //}
-            //catch (Exception ex)
-            //{
-            //    var path = $"exception_log_{DateTime.Now.ToString("yy_MM_dd_HH_mm_ss")}.txt";
-            //    File.WriteAllText(path, ex.Message);
-            //    return 0;
-            //}
-            //finally
-            //{
-            //    var path = $"finally_log_.txt";
-            //    File.WriteAllText(path, "exit");
-            //}
+            }
 
             return 1;
 

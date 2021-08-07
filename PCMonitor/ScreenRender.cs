@@ -68,6 +68,8 @@ namespace PCMonitor
 
         }
 
+
+
         private DataForRender getDataForWidget(eWidgetType widgetType,eMonitorDataType dataType)
         {
             //若不是TextLabel 则直接返回原始数据
@@ -162,9 +164,6 @@ namespace PCMonitor
                 return new DataForRender(null, result_str);
             }
         }
-
-
-
 
         private void build()
         {

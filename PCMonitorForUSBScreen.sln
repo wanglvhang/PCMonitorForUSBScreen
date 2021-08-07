@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCMonitor", "PCMonitor\PCMo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USBScreen", "USBScreen\USBScreen.csproj", "{EBBB8308-6BFD-4F08-B0A7-515B9F64885C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCMonitor.UI", "PCMonitor.UI\PCMonitor.UI.csproj", "{77177D20-69E6-4EA1-A100-1EFF55B9CDFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EBBB8308-6BFD-4F08-B0A7-515B9F64885C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBBB8308-6BFD-4F08-B0A7-515B9F64885C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBBB8308-6BFD-4F08-B0A7-515B9F64885C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77177D20-69E6-4EA1-A100-1EFF55B9CDFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77177D20-69E6-4EA1-A100-1EFF55B9CDFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77177D20-69E6-4EA1-A100-1EFF55B9CDFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77177D20-69E6-4EA1-A100-1EFF55B9CDFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

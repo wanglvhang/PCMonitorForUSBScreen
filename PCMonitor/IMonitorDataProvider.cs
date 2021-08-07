@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenHardwareMonitor.Hardware;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,5 +10,6 @@ namespace PCMonitor
     public interface IMonitorDataProvider
     {
         float? GetData(eMonitorDataType dataType);
+
     }
 }

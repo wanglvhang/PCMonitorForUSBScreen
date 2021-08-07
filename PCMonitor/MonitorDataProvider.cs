@@ -35,13 +35,8 @@ namespace PCMonitor
 
         public MonitorDataProvider(DateTime startDate,int cpu_fan_index = 0, string ni_name ="")
         {
-            this.cpu_fan_index = cpu_fan_index;
-            this.network_interface_name = ni_name;
-            this.start_date = startDate;
-
             var hv = new UpdateVisitor();
-
-            this.Computer = new Computer();
+            Computer = new Computer();
 
             Computer.Open();
 
@@ -53,6 +48,11 @@ namespace PCMonitor
             Computer.RAMEnabled = true;
 
             Computer.Accept(hv);
+
+            this.cpu_fan_index = cpu_fan_index;
+            this.network_interface_name = ni_name;
+            this.start_date = startDate;
+
 
             this.CPU = Computer.Hardware.Where(x => x.HardwareType == HardwareType.CPU).First();
             this.GPU = Computer.Hardware.Where(x => x.HardwareType == HardwareType.GpuNvidia || x.HardwareType == HardwareType.GpuAti).First();
@@ -83,7 +83,7 @@ namespace PCMonitor
             }
             else if (dataType == eMonitorDataType.Total_Days)
             {
-                return getLifeDays();
+                return getTotalDays();
             }
             else
             {
@@ -92,6 +92,9 @@ namespace PCMonitor
             }
 
         }
+
+
+
 
 
         private ISensor getSensor(eMonitorDataType dataType)
@@ -214,7 +217,7 @@ namespace PCMonitor
             }
         }
 
-        private float? getLifeDays()
+        private float? getTotalDays()
         {
             try
             {
@@ -226,7 +229,6 @@ namespace PCMonitor
             }
 
         }
-
 
     }
 

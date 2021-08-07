@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenHardwareMonitor.Hardware;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -40,11 +41,7 @@ namespace PCMonitor
                 return default(T);
 
             return (T)Enum.Parse(typeof(T), str);
-            //foreach (T item in Enum.GetValues(typeof(T)))
-            //{
-            //    if (item.ToString().ToLower().Equals(value.Trim().ToLower())) return item;
-            //}
-            //return defaultValue;
         }
+
     }
 }

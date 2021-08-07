@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0B2CCD48-3A70-4762-8FEB-C24FA893531E}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>PCMonitor</RootNamespace>
     <AssemblyName>PCMonitor</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -46,9 +46,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
@@ -78,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RenderLauncher.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IMonitorDataProvider.cs" />
     <Compile Include="MonitorDataProvider.cs" />
@@ -93,7 +92,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="themes\default\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
