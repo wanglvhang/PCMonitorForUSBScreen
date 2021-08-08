@@ -41,22 +41,23 @@ namespace PCMonitor.UI
             this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
+            this.labWidgetCount = new System.Windows.Forms.Label();
+            this.labDevice = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
+            this.labRenderTime = new System.Windows.Forms.Label();
+            this.labFrameCount = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.ckbAutoStart = new System.Windows.Forms.CheckBox();
             this.ckbScreenProtect = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label15 = new System.Windows.Forms.Label();
             this.cmbFrameTime = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
             this.dtpStartDate = new System.Windows.Forms.DateTimePicker();
-            this.cmbFans = new System.Windows.Forms.ComboBox();
+            this.cmbCPUFans = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.cmbNetInterfaces = new System.Windows.Forms.ComboBox();
@@ -101,31 +102,31 @@ namespace PCMonitor.UI
             // 
             this.btnStart.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnStart.ForeColor = System.Drawing.Color.Teal;
-            this.btnStart.Location = new System.Drawing.Point(409, 302);
+            this.btnStart.Location = new System.Drawing.Point(384, 263);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(93, 38);
             this.btnStart.TabIndex = 1;
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = true;
-            this.btnStart.Click += new System.EventHandler(this.button1_Click);
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // btnStop
             // 
             this.btnStop.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnStop.ForeColor = System.Drawing.Color.OrangeRed;
-            this.btnStop.Location = new System.Drawing.Point(309, 302);
+            this.btnStop.Location = new System.Drawing.Point(284, 263);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(93, 38);
             this.btnStop.TabIndex = 2;
             this.btnStop.Text = "Stop";
             this.btnStop.UseVisualStyleBackColor = true;
-            this.btnStop.Click += new System.EventHandler(this.button2_Click);
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // cmbTheme
             // 
             this.cmbTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbTheme.FormattingEnabled = true;
-            this.cmbTheme.Location = new System.Drawing.Point(161, 25);
+            this.cmbTheme.Location = new System.Drawing.Point(161, 20);
             this.cmbTheme.Name = "cmbTheme";
             this.cmbTheme.Size = new System.Drawing.Size(121, 20);
             this.cmbTheme.TabIndex = 3;
@@ -133,7 +134,7 @@ namespace PCMonitor.UI
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(14, 29);
+            this.label1.Location = new System.Drawing.Point(14, 24);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(143, 12);
             this.label1.TabIndex = 4;
@@ -142,7 +143,7 @@ namespace PCMonitor.UI
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(86, 65);
+            this.label4.Location = new System.Drawing.Point(86, 54);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(71, 12);
             this.label4.TabIndex = 9;
@@ -150,41 +151,41 @@ namespace PCMonitor.UI
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label14);
-            this.groupBox1.Controls.Add(this.label13);
+            this.groupBox1.Controls.Add(this.labWidgetCount);
+            this.groupBox1.Controls.Add(this.labDevice);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.cmbTheme);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(12, 153);
+            this.groupBox1.Location = new System.Drawing.Point(223, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(291, 135);
+            this.groupBox1.Size = new System.Drawing.Size(291, 110);
             this.groupBox1.TabIndex = 10;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "主题信息/Theme Info";
             // 
-            // label14
+            // labWidgetCount
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(164, 101);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(47, 12);
-            this.label14.TabIndex = 13;
-            this.label14.Text = "label14";
+            this.labWidgetCount.AutoSize = true;
+            this.labWidgetCount.Location = new System.Drawing.Point(159, 82);
+            this.labWidgetCount.Name = "labWidgetCount";
+            this.labWidgetCount.Size = new System.Drawing.Size(23, 12);
+            this.labWidgetCount.TabIndex = 13;
+            this.labWidgetCount.Text = "N/A";
             // 
-            // label13
+            // labDevice
             // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(161, 65);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(47, 12);
-            this.label13.TabIndex = 12;
-            this.label13.Text = "label13";
+            this.labDevice.AutoSize = true;
+            this.labDevice.Location = new System.Drawing.Point(159, 54);
+            this.labDevice.Name = "labDevice";
+            this.labDevice.Size = new System.Drawing.Size(23, 12);
+            this.labDevice.TabIndex = 12;
+            this.labDevice.Text = "N/A";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(44, 101);
+            this.label5.Location = new System.Drawing.Point(44, 82);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(113, 12);
             this.label5.TabIndex = 11;
@@ -193,49 +194,49 @@ namespace PCMonitor.UI
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(14, 84);
+            this.label3.Location = new System.Drawing.Point(16, 26);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(107, 12);
+            this.label3.Size = new System.Drawing.Size(119, 12);
             this.label3.TabIndex = 10;
-            this.label3.Text = "单帧时间/Interval";
+            this.label3.Text = "单帧时间/Frame Time";
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.label8);
-            this.groupBox2.Controls.Add(this.label7);
+            this.groupBox2.Controls.Add(this.labRenderTime);
+            this.groupBox2.Controls.Add(this.labFrameCount);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Location = new System.Drawing.Point(309, 153);
+            this.groupBox2.Location = new System.Drawing.Point(223, 128);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(193, 135);
+            this.groupBox2.Size = new System.Drawing.Size(291, 126);
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "运行信息/Running Info";
             // 
-            // label8
+            // labRenderTime
             // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold);
-            this.label8.Location = new System.Drawing.Point(34, 98);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(99, 22);
-            this.label8.TabIndex = 4;
-            this.label8.Text = "123.456ms";
+            this.labRenderTime.AutoSize = true;
+            this.labRenderTime.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold);
+            this.labRenderTime.Location = new System.Drawing.Point(61, 89);
+            this.labRenderTime.Name = "labRenderTime";
+            this.labRenderTime.Size = new System.Drawing.Size(99, 22);
+            this.labRenderTime.TabIndex = 4;
+            this.labRenderTime.Text = "123.456ms";
             // 
-            // label7
+            // labFrameCount
             // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label7.Location = new System.Drawing.Point(34, 47);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(110, 22);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "1234567890";
+            this.labFrameCount.AutoSize = true;
+            this.labFrameCount.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.labFrameCount.Location = new System.Drawing.Point(62, 40);
+            this.labFrameCount.Name = "labFrameCount";
+            this.labFrameCount.Size = new System.Drawing.Size(110, 22);
+            this.labFrameCount.TabIndex = 3;
+            this.labFrameCount.Text = "1234567890";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 76);
+            this.label6.Location = new System.Drawing.Point(13, 68);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(119, 12);
             this.label6.TabIndex = 1;
@@ -244,7 +245,7 @@ namespace PCMonitor.UI
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 27);
+            this.label2.Location = new System.Drawing.Point(13, 22);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(95, 12);
             this.label2.TabIndex = 0;
@@ -253,58 +254,70 @@ namespace PCMonitor.UI
             // ckbAutoStart
             // 
             this.ckbAutoStart.AutoSize = true;
-            this.ckbAutoStart.Location = new System.Drawing.Point(61, 314);
+            this.ckbAutoStart.Location = new System.Drawing.Point(58, 275);
             this.ckbAutoStart.Name = "ckbAutoStart";
             this.ckbAutoStart.Size = new System.Drawing.Size(72, 16);
             this.ckbAutoStart.TabIndex = 12;
             this.ckbAutoStart.Text = "自动启动";
             this.ckbAutoStart.UseVisualStyleBackColor = true;
+            this.ckbAutoStart.CheckedChanged += new System.EventHandler(this.ckbAutoStart_CheckedChanged);
             // 
             // ckbScreenProtect
             // 
             this.ckbScreenProtect.AutoSize = true;
-            this.ckbScreenProtect.Location = new System.Drawing.Point(182, 314);
+            this.ckbScreenProtect.Location = new System.Drawing.Point(173, 275);
             this.ckbScreenProtect.Name = "ckbScreenProtect";
             this.ckbScreenProtect.Size = new System.Drawing.Size(48, 16);
             this.ckbScreenProtect.TabIndex = 13;
             this.ckbScreenProtect.Text = "屏保";
             this.ckbScreenProtect.UseVisualStyleBackColor = true;
+            this.ckbScreenProtect.CheckedChanged += new System.EventHandler(this.ckbScreenProtect_CheckedChanged);
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.label15);
             this.groupBox3.Controls.Add(this.cmbFrameTime);
             this.groupBox3.Controls.Add(this.label11);
             this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Controls.Add(this.dtpStartDate);
-            this.groupBox3.Controls.Add(this.cmbFans);
+            this.groupBox3.Controls.Add(this.cmbCPUFans);
             this.groupBox3.Controls.Add(this.label10);
             this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Controls.Add(this.cmbNetInterfaces);
-            this.groupBox3.Location = new System.Drawing.Point(12, 12);
+            this.groupBox3.Location = new System.Drawing.Point(21, 12);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(490, 135);
+            this.groupBox3.Size = new System.Drawing.Size(196, 242);
             this.groupBox3.TabIndex = 14;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "配置信息/Configuration Info";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(167, 48);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(17, 12);
+            this.label15.TabIndex = 13;
+            this.label15.Text = "ms";
             // 
             // cmbFrameTime
             // 
             this.cmbFrameTime.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbFrameTime.FormattingEnabled = true;
             this.cmbFrameTime.Items.AddRange(new object[] {
-            "500ms",
-            "800ms",
-            "1000ms",
-            "1200ms"});
-            this.cmbFrameTime.Location = new System.Drawing.Point(16, 101);
+            "500",
+            "800",
+            "1000",
+            "1200"});
+            this.cmbFrameTime.Location = new System.Drawing.Point(18, 41);
             this.cmbFrameTime.Name = "cmbFrameTime";
-            this.cmbFrameTime.Size = new System.Drawing.Size(159, 20);
+            this.cmbFrameTime.Size = new System.Drawing.Size(146, 20);
             this.cmbFrameTime.TabIndex = 12;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(320, 30);
+            this.label11.Location = new System.Drawing.Point(15, 175);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(119, 12);
             this.label11.TabIndex = 5;
@@ -312,25 +325,25 @@ namespace PCMonitor.UI
             // 
             // dtpStartDate
             // 
-            this.dtpStartDate.Location = new System.Drawing.Point(320, 48);
+            this.dtpStartDate.Location = new System.Drawing.Point(16, 193);
             this.dtpStartDate.Name = "dtpStartDate";
-            this.dtpStartDate.Size = new System.Drawing.Size(159, 21);
+            this.dtpStartDate.Size = new System.Drawing.Size(148, 21);
             this.dtpStartDate.TabIndex = 4;
             this.dtpStartDate.Value = new System.DateTime(2021, 8, 7, 0, 0, 0, 0);
             // 
-            // cmbFans
+            // cmbCPUFans
             // 
-            this.cmbFans.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbFans.FormattingEnabled = true;
-            this.cmbFans.Location = new System.Drawing.Point(192, 49);
-            this.cmbFans.Name = "cmbFans";
-            this.cmbFans.Size = new System.Drawing.Size(112, 20);
-            this.cmbFans.TabIndex = 3;
+            this.cmbCPUFans.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbCPUFans.FormattingEnabled = true;
+            this.cmbCPUFans.Location = new System.Drawing.Point(16, 90);
+            this.cmbCPUFans.Name = "cmbCPUFans";
+            this.cmbCPUFans.Size = new System.Drawing.Size(148, 20);
+            this.cmbCPUFans.TabIndex = 3;
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(192, 32);
+            this.label10.Location = new System.Drawing.Point(16, 73);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(77, 12);
             this.label10.TabIndex = 2;
@@ -339,25 +352,25 @@ namespace PCMonitor.UI
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(14, 31);
+            this.label9.Location = new System.Drawing.Point(14, 123);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(161, 12);
+            this.label9.Size = new System.Drawing.Size(137, 12);
             this.label9.TabIndex = 1;
-            this.label9.Text = "监控网卡/Network Interface";
+            this.label9.Text = "监控网卡/Net Interface";
             // 
             // cmbNetInterfaces
             // 
             this.cmbNetInterfaces.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbNetInterfaces.FormattingEnabled = true;
-            this.cmbNetInterfaces.Location = new System.Drawing.Point(16, 49);
+            this.cmbNetInterfaces.Location = new System.Drawing.Point(16, 141);
             this.cmbNetInterfaces.Name = "cmbNetInterfaces";
-            this.cmbNetInterfaces.Size = new System.Drawing.Size(159, 20);
+            this.cmbNetInterfaces.Size = new System.Drawing.Size(148, 20);
             this.cmbNetInterfaces.TabIndex = 0;
             // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.label12);
-            this.groupBox4.Location = new System.Drawing.Point(12, 375);
+            this.groupBox4.Location = new System.Drawing.Point(18, 328);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(496, 177);
             this.groupBox4.TabIndex = 15;
@@ -376,7 +389,7 @@ namespace PCMonitor.UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(523, 571);
+            this.ClientSize = new System.Drawing.Size(535, 519);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.ckbScreenProtect);
@@ -422,8 +435,8 @@ namespace PCMonitor.UI
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label labRenderTime;
+        private System.Windows.Forms.Label labFrameCount;
         private System.Windows.Forms.CheckBox ckbAutoStart;
         private System.Windows.Forms.CheckBox ckbScreenProtect;
         private System.Windows.Forms.GroupBox groupBox3;
@@ -432,12 +445,13 @@ namespace PCMonitor.UI
         private System.Windows.Forms.ComboBox cmbNetInterfaces;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.DateTimePicker dtpStartDate;
-        private System.Windows.Forms.ComboBox cmbFans;
+        private System.Windows.Forms.ComboBox cmbCPUFans;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.ComboBox cmbFrameTime;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label labWidgetCount;
+        private System.Windows.Forms.Label labDevice;
+        private System.Windows.Forms.Label label15;
     }
 }
 

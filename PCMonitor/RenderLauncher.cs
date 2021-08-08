@@ -1,11 +1,14 @@
 ﻿using Microsoft.Win32.TaskScheduler;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using USBScreen;
 using Action = System.Action;
 using Task = System.Threading.Tasks.Task;
 
@@ -16,38 +19,65 @@ namespace PCMonitor
 
         public ScreenRender ScreenRender { get; private set; }
 
+        private AppConfig appConfig;
+        private string themePath;
+        private IUSBScreen Screen;
 
-        public RenderLauncher()
+
+        public RenderLauncher(AppConfig appConfig,string theme_path)
         {
-
+            this.appConfig = appConfig;
+            this.themePath = theme_path;
+            this.Screen = Device3_5.Instance;
         }
 
 
         public void Initial()
         {
+            //read theme config
+            var bg_img = new Bitmap($"{themePath}\\bg.png");
+            var theme_json_path = $"{themePath}\\config.json";
+            var start_date = Convert.ToDateTime(this.appConfig.StartDate);
 
+            var mdp = new MonitorDataProvider(start_date, this.appConfig.CPUFanIndex, this.appConfig.NetworkInterface);
+            var theme_config = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_json_path));
 
-            //read configuration
-
-            //
+            this.ScreenRender = new ScreenRender(bg_img, Screen, mdp, theme_config);
 
 
         }
 
 
 
-        public void Run(Action<int, float> uiCallback, RenderStopSignal signal)
+        public void Run(Action<int, double> uiCallback, RenderStopSignal signal)
         {
 
-            //运行刷新
-            var idx = 0;
-            while (idx < 100 && !signal.Stop)
+            //var idx = 0;
+            //while (idx < 100 && !signal.Stop)
+            //{
+            //    uiCallback(idx, idx*10f);
+
+            //    Thread.Sleep(500);
+
+            //    idx++;
+            //}
+
+            var count = 1;
+            while (true && !signal.Stop)
             {
-                uiCallback(idx, idx*10f);
+                var now = DateTime.Now;
+                this.ScreenRender.Refresh();
+                var span = DateTime.Now - now;
+                uiCallback(count,span.TotalMilliseconds);
 
-                Thread.Sleep(500);
+                count++;
+                span = DateTime.Now - now;
+                //if render time is lower then interval, sleep
+                if (span.TotalMilliseconds < this.appConfig.FrameTime)
+                {
+                    Thread.Sleep(this.appConfig.FrameTime - (int)span.TotalMilliseconds);
+                }
 
-                idx++;
             }
 
         }

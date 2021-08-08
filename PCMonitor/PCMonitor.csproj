@@ -76,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppConfiig.cs" />
     <Compile Include="RenderLauncher.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IMonitorDataProvider.cs" />
@@ -84,23 +85,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenRender.cs" />
     <Compile Include="ThemeConfig.cs" />
-    <Compile Include="WidgetConfig.cs" />
     <Compile Include="Widgets\Oscillogram.cs" />
     <Compile Include="Widgets\PercentBar.cs" />
     <Compile Include="Widgets\TextLabel.cs" />
     <Compile Include="Widgets\WidgetBase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="themes\default\config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="themes\default\bg.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\USBScreen\USBScreen.csproj">
