@@ -33,7 +33,6 @@ namespace PCMonitor.UI
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.displayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnStop = new System.Windows.Forms.Button();
@@ -82,22 +81,16 @@ namespace PCMonitor.UI
             // ContextMenuStrip
             // 
             this.ContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.displayToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.ContextMenuStrip.Name = "ContextMenuStrip";
-            this.ContextMenuStrip.Size = new System.Drawing.Size(119, 48);
-            // 
-            // displayToolStripMenuItem
-            // 
-            this.displayToolStripMenuItem.Name = "displayToolStripMenuItem";
-            this.displayToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
-            this.displayToolStripMenuItem.Text = "Display";
+            this.ContextMenuStrip.Size = new System.Drawing.Size(97, 26);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(96, 22);
             this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // btnStart
             // 
@@ -261,7 +254,6 @@ namespace PCMonitor.UI
             this.ckbAutoStart.TabIndex = 12;
             this.ckbAutoStart.Text = "自动启动";
             this.ckbAutoStart.UseVisualStyleBackColor = true;
-            this.ckbAutoStart.CheckedChanged += new System.EventHandler(this.ckbAutoStart_CheckedChanged);
             // 
             // ckbScreenProtect
             // 
@@ -272,7 +264,6 @@ namespace PCMonitor.UI
             this.ckbScreenProtect.TabIndex = 13;
             this.ckbScreenProtect.Text = "屏保";
             this.ckbScreenProtect.UseVisualStyleBackColor = true;
-            this.ckbScreenProtect.CheckedChanged += new System.EventHandler(this.ckbScreenProtect_CheckedChanged);
             // 
             // groupBox3
             // 
@@ -437,7 +428,6 @@ namespace PCMonitor.UI
 
         private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.ContextMenuStrip ContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem displayToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnStop;

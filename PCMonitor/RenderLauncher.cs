@@ -19,14 +19,16 @@ namespace PCMonitor
         public ScreenRender ScreenRender { get; private set; }
 
         private AppConfig appConfig;
+        private ThemeConfig themeConfig;
         private string themePath;
         private IUSBScreen Screen;
 
 
-        public RenderLauncher(AppConfig appConfig, string theme_path)
+        public RenderLauncher(AppConfig appCon, string theme_path,ThemeConfig themeCon)
         {
-            this.appConfig = appConfig;
+            this.appConfig = appCon;
             this.themePath = theme_path;
+            this.themeConfig = themeCon;
             this.Screen = Device3_5.Instance;
         }
 
@@ -35,13 +37,12 @@ namespace PCMonitor
         {
             //read theme config
             var bg_img = new Bitmap($"{themePath}\\bg.png");
-            var theme_json_path = $"{themePath}\\config.json";
+            
             var start_date = Convert.ToDateTime(this.appConfig.StartDate);
 
             var mdp = new MonitorDataProvider(start_date, this.appConfig.CPUFanIndex, this.appConfig.NetworkInterface);
-            var theme_config = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_json_path));
 
-            this.ScreenRender = new ScreenRender(bg_img, Screen, mdp, theme_config);
+            this.ScreenRender = new ScreenRender(bg_img, Screen, mdp, this.themeConfig);
 
             this.ScreenRender.Setup();
 

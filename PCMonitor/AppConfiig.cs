@@ -18,8 +18,6 @@ namespace PCMonitor
 
         public string Theme { get; set; }
 
-        public bool IsAutoStart { get; set; }
-
         public bool ScreenProtect { get; set; }
 
     }

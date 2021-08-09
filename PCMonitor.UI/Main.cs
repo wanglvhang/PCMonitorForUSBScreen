@@ -34,10 +34,12 @@ namespace PCMonitor.UI
         private RenderStopSignal signal = new RenderStopSignal() { Stop = false };
         private string appConfig_path;
         private AppConfig appConfig;
+        private ThemeConfig themeConfig;
         private string themeFolder_path;
         private Thread workThread;
         private string work_dir;
         private bool isAutoStart;
+        private readonly string task_name = "PCMonitor_Schedule";
 
 
 
@@ -49,8 +51,11 @@ namespace PCMonitor.UI
             this.work_dir = Path.GetDirectoryName(exe_path);
             var themes_path = Path.Combine(this.work_dir, "themes");
             this.appConfig_path = $"{ this.work_dir}\\app.json";
-
             this.appConfig = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(this.appConfig_path));
+
+            var theme_json_path = $"{this.work_dir}\\themes\\{this.appConfig.Theme}\\config.json";
+            this.themeConfig = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_json_path));
+
 
             //网卡
             var network_interfaces = NetworkInterface.GetAllNetworkInterfaces();
@@ -98,9 +103,29 @@ namespace PCMonitor.UI
                 {
                     this.cmbThemes.SelectedItem = di.Name;
                     this.themeFolder_path = $"{this.work_dir}\\themes\\{this.appConfig.Theme}";
+                    this.labDevice.Text = this.themeConfig.device;
+                    this.labWidgetCount.Text = this.themeConfig.Widgets.Count.ToString();
                 }
             }
 
+            //isAutoStart
+            using (TaskService ts = new TaskService())
+            {
+                var task = ts.FindTask(this.task_name);
+
+                if (task != null)
+                {
+                    this.ckbAutoStart.Checked = true;
+                }
+                else
+                {
+                    this.ckbAutoStart.Checked = false;
+                }
+            }
+
+            //screenprotect
+            this.ckbScreenProtect.Checked = this.appConfig.ScreenProtect;
+            this.ckbScreenProtect.Enabled = false;
 
             //初始化完成后挂载时间
             this.cmbNetInterfaces.SelectedIndexChanged += CmbNetInterfaces_SelectedIndexChanged;
@@ -109,8 +134,11 @@ namespace PCMonitor.UI
             this.dtpStartDate.ValueChanged += DtpStartDate_ValueChanged;
             this.cmbThemes.SelectedIndexChanged += CmbThemes_SelectedIndexChanged;
 
+            this.ckbAutoStart.CheckedChanged += CkbAutoStart_CheckedChanged;
+            this.ckbScreenProtect.CheckedChanged += CkbScreenProtect_CheckedChanged;
 
-            //
+
+            //自动运行
             if (this.isAutoStart)
             {
                 this.WindowState = FormWindowState.Minimized;
@@ -120,8 +148,17 @@ namespace PCMonitor.UI
 
         }
 
+        private void CkbScreenProtect_CheckedChanged(object sender, EventArgs e)
+        {
+            this.appConfig.ScreenProtect = this.ckbScreenProtect.Checked;
+            saveAppConfig();
+        }
 
+        private void CkbAutoStart_CheckedChanged(object sender, EventArgs e)
+        {
+            setupTaskScheduleOnLogon(this.ckbAutoStart.Checked);
 
+        }
 
         private void CmbThemes_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -154,21 +191,6 @@ namespace PCMonitor.UI
             saveAppConfig();
         }
 
-        private void ckbScreenProtect_CheckedChanged(object sender, EventArgs e)
-        {
-            this.appConfig.ScreenProtect = this.ckbScreenProtect.Checked;
-            saveAppConfig();
-        }
-
-        private void ckbAutoStart_CheckedChanged(object sender, EventArgs e)
-        {
-            this.appConfig.IsAutoStart = this.ckbAutoStart.Checked;
-
-            setupTaskScheduleOnLogon(this.appConfig.IsAutoStart);
-
-            saveAppConfig();
-
-        }
 
 
 
@@ -193,7 +215,6 @@ namespace PCMonitor.UI
                 this.Activate();
                 this.ShowInTaskbar = true;
             }
-            //this.CenterToScreen();
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -203,7 +224,7 @@ namespace PCMonitor.UI
             this.btnStart.Enabled = false;
             this.btnStop.Enabled = true;
 
-            this.renderLauncher = new RenderLauncher(this.appConfig, this.themeFolder_path);
+            this.renderLauncher = new RenderLauncher(this.appConfig, this.themeFolder_path,this.themeConfig);
             this.renderLauncher.Initial();
 
             this.signal.Stop = false;
@@ -249,8 +270,6 @@ namespace PCMonitor.UI
                     break;
             }
         }
-
-
 
 
 
@@ -324,22 +343,21 @@ namespace PCMonitor.UI
             //this.ckbScreenProtect.Enabled = true;
         }
 
-        public static void setupTaskScheduleOnLogon(bool enable)
+        public void setupTaskScheduleOnLogon(bool enable)
         {
             var exe_path = typeof(Program).Assembly.Location;
             var working_dir = Path.GetDirectoryName(exe_path);
-            var task_name = "PCMonitor_Schedule";
 
             using (TaskService ts = new TaskService())
             {
                 if (enable)
                 {
                     //check if schedule alreay exist
-                    var task = ts.FindTask(task_name);
+                    var task = ts.FindTask(this.task_name);
 
                     if (task != null)
                     {
-                        ts.RootFolder.DeleteTask(task_name);
+                        ts.RootFolder.DeleteTask(this.task_name);
                     }
 
                     var definition = ts.NewTask();
@@ -348,7 +366,7 @@ namespace PCMonitor.UI
                     definition.Principal.RunLevel = TaskRunLevel.Highest;
                     definition.Actions.Add<ExecAction>(new ExecAction(exe_path, "-auto", working_dir));
 
-                    var new_task = ts.RootFolder.RegisterTaskDefinition(task_name, definition);
+                    var new_task = ts.RootFolder.RegisterTaskDefinition(this.task_name, definition);
                     new_task.Enabled = enable;
 
                     MessageBox.Show("自动启动计划任务设置成功");
@@ -357,10 +375,10 @@ namespace PCMonitor.UI
                 }
                 else
                 {
-                    var task = ts.FindTask(task_name);
+                    var task = ts.FindTask(this.task_name);
                     if (task != null)
                     {
-                        ts.RootFolder.DeleteTask(task_name);
+                        ts.RootFolder.DeleteTask(this.task_name);
                         MessageBox.Show("自动启动计划任务删除成功");
                     }
                 }
@@ -372,6 +390,11 @@ namespace PCMonitor.UI
         private void lnkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("https://github.com/wanglvhang/PCMonitorForUSBScreen");
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 
