@@ -37,7 +37,7 @@ namespace PCMonitor.UI
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnStop = new System.Windows.Forms.Button();
-            this.cmbTheme = new System.Windows.Forms.ComboBox();
+            this.cmbThemes = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -62,6 +62,7 @@ namespace PCMonitor.UI
             this.label9 = new System.Windows.Forms.Label();
             this.cmbNetInterfaces = new System.Windows.Forms.ComboBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.lnkGitHub = new System.Windows.Forms.LinkLabel();
             this.label12 = new System.Windows.Forms.Label();
             this.ContextMenuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -122,14 +123,14 @@ namespace PCMonitor.UI
             this.btnStop.UseVisualStyleBackColor = true;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
-            // cmbTheme
+            // cmbThemes
             // 
-            this.cmbTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbTheme.FormattingEnabled = true;
-            this.cmbTheme.Location = new System.Drawing.Point(161, 20);
-            this.cmbTheme.Name = "cmbTheme";
-            this.cmbTheme.Size = new System.Drawing.Size(121, 20);
-            this.cmbTheme.TabIndex = 3;
+            this.cmbThemes.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbThemes.FormattingEnabled = true;
+            this.cmbThemes.Location = new System.Drawing.Point(161, 20);
+            this.cmbThemes.Name = "cmbThemes";
+            this.cmbThemes.Size = new System.Drawing.Size(121, 20);
+            this.cmbThemes.TabIndex = 3;
             // 
             // label1
             // 
@@ -154,7 +155,7 @@ namespace PCMonitor.UI
             this.groupBox1.Controls.Add(this.labWidgetCount);
             this.groupBox1.Controls.Add(this.labDevice);
             this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.cmbTheme);
+            this.groupBox1.Controls.Add(this.cmbThemes);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(223, 12);
@@ -219,9 +220,9 @@ namespace PCMonitor.UI
             this.labRenderTime.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold);
             this.labRenderTime.Location = new System.Drawing.Point(61, 89);
             this.labRenderTime.Name = "labRenderTime";
-            this.labRenderTime.Size = new System.Drawing.Size(99, 22);
+            this.labRenderTime.Size = new System.Drawing.Size(73, 22);
             this.labRenderTime.TabIndex = 4;
-            this.labRenderTime.Text = "123.456ms";
+            this.labRenderTime.Text = "N/A ms";
             // 
             // labFrameCount
             // 
@@ -229,9 +230,9 @@ namespace PCMonitor.UI
             this.labFrameCount.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.labFrameCount.Location = new System.Drawing.Point(62, 40);
             this.labFrameCount.Name = "labFrameCount";
-            this.labFrameCount.Size = new System.Drawing.Size(110, 22);
+            this.labFrameCount.Size = new System.Drawing.Size(44, 22);
             this.labFrameCount.TabIndex = 3;
-            this.labFrameCount.Text = "1234567890";
+            this.labFrameCount.Text = "N/A";
             // 
             // label6
             // 
@@ -369,19 +370,31 @@ namespace PCMonitor.UI
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.lnkGitHub);
             this.groupBox4.Controls.Add(this.label12);
             this.groupBox4.Location = new System.Drawing.Point(18, 328);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(496, 177);
+            this.groupBox4.Size = new System.Drawing.Size(496, 117);
             this.groupBox4.TabIndex = 15;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "说明/Caption";
+            // 
+            // lnkGitHub
+            // 
+            this.lnkGitHub.AutoSize = true;
+            this.lnkGitHub.Location = new System.Drawing.Point(9, 83);
+            this.lnkGitHub.Name = "lnkGitHub";
+            this.lnkGitHub.Size = new System.Drawing.Size(161, 12);
+            this.lnkGitHub.TabIndex = 1;
+            this.lnkGitHub.TabStop = true;
+            this.lnkGitHub.Text = "更多详细内容请点击这里查看";
+            this.lnkGitHub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkGitHub_LinkClicked);
             // 
             // label12
             // 
             this.label12.Location = new System.Drawing.Point(7, 21);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(483, 139);
+            this.label12.Size = new System.Drawing.Size(483, 90);
             this.label12.TabIndex = 0;
             this.label12.Text = "渲染耗时指的是从获取硬件信息到信息呈现到屏幕所耗费的时间，实际上的每帧时间控制为设置的单帧时间。\r\n\r\n渲染次数既总共渲染过的帧的总数。";
             // 
@@ -389,7 +402,7 @@ namespace PCMonitor.UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(535, 519);
+            this.ClientSize = new System.Drawing.Size(535, 458);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.ckbScreenProtect);
@@ -403,6 +416,7 @@ namespace PCMonitor.UI
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PCMonitor";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.Load += new System.EventHandler(this.Main_Load);
             this.SizeChanged += new System.EventHandler(this.Main_SizeChanged);
             this.ContextMenuStrip.ResumeLayout(false);
@@ -413,6 +427,7 @@ namespace PCMonitor.UI
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -426,7 +441,7 @@ namespace PCMonitor.UI
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnStop;
-        private System.Windows.Forms.ComboBox cmbTheme;
+        private System.Windows.Forms.ComboBox cmbThemes;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -452,6 +467,7 @@ namespace PCMonitor.UI
         private System.Windows.Forms.Label labWidgetCount;
         private System.Windows.Forms.Label labDevice;
         private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.LinkLabel lnkGitHub;
     }
 }
 

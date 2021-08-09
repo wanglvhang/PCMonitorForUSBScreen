@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Win32.TaskScheduler;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OpenHardwareMonitor.Hardware;
 using System;
@@ -18,10 +19,12 @@ namespace PCMonitor.UI
 {
     public partial class Main : Form
     {
-        public Main()
+        public Main(bool autoStart = false)
         {
             InitializeComponent();
             synchronizationContext = SynchronizationContext.Current;
+            this.btnStop.Enabled = false;
+            this.isAutoStart = autoStart;
         }
 
 
@@ -31,8 +34,10 @@ namespace PCMonitor.UI
         private RenderStopSignal signal = new RenderStopSignal() { Stop = false };
         private string appConfig_path;
         private AppConfig appConfig;
-        private string themeConfig_path;
-        private ThemeConfig themeConfig;
+        private string themeFolder_path;
+        private Thread workThread;
+        private string work_dir;
+        private bool isAutoStart;
 
 
 
@@ -41,22 +46,18 @@ namespace PCMonitor.UI
         {
             //初始化UI内容以及读取配置
             var exe_path = typeof(Main).Assembly.Location;
-            var working_dir = Path.GetDirectoryName(exe_path);
-            this.appConfig_path = $"{working_dir}\\app.json";
+            this.work_dir = Path.GetDirectoryName(exe_path);
+            var themes_path = Path.Combine(this.work_dir, "themes");
+            this.appConfig_path = $"{ this.work_dir}\\app.json";
 
             this.appConfig = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(this.appConfig_path));
 
-            this.themeConfig_path = $"{working_dir}\\themes\\{this.appConfig.Theme}\\config.json";
-            //var bg_path = $"{working_dir}\\themes\\{this.appConfig.Theme}\\bg.png";
-
-            //this.themeConfig = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(this.themeConfig_path));
-
             //网卡
             var network_interfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach(var ni in network_interfaces)
+            foreach (var ni in network_interfaces)
             {
                 this.cmbNetInterfaces.Items.Add(ni.Name);
-                if(ni.Name == this.appConfig.NetworkInterface)
+                if (ni.Name == this.appConfig.NetworkInterface)
                 {
                     this.cmbNetInterfaces.SelectedItem = ni.Name;
                 }
@@ -65,7 +66,7 @@ namespace PCMonitor.UI
             //cpu风扇
             var fans = this.GetSuperIOFanSensors();
 
-            foreach(var f in fans)
+            foreach (var f in fans)
             {
                 this.cmbCPUFans.Items.Add(f.Name);
             }
@@ -77,10 +78,28 @@ namespace PCMonitor.UI
             this.dtpStartDate.Value = startData;
 
             //frame time
-            this.cmbFrameTime.SelectedIndex = 2;
+            foreach (var i in this.cmbFrameTime.Items)
+            {
+                if (i.ToString() == this.appConfig.FrameTime.ToString())
+                {
+                    this.cmbFrameTime.SelectedItem = i;
+                }
+            }
 
 
-            //themes
+            //themes,get all folder under theme folder
+            //var folders = Directory.GetDirectories(themes_path);
+            var directory = new DirectoryInfo(themes_path);
+            var theme_folders = directory.GetDirectories();
+            foreach (var di in theme_folders)
+            {
+                this.cmbThemes.Items.Add(di.Name);
+                if (di.Name.ToLower() == this.appConfig.Theme)
+                {
+                    this.cmbThemes.SelectedItem = di.Name;
+                    this.themeFolder_path = $"{this.work_dir}\\themes\\{this.appConfig.Theme}";
+                }
+            }
 
 
             //初始化完成后挂载时间
@@ -88,16 +107,26 @@ namespace PCMonitor.UI
             this.cmbCPUFans.SelectedIndexChanged += CmbFans_SelectedIndexChanged;
             this.cmbFrameTime.SelectedIndexChanged += CmbFrameTime_SelectedIndexChanged;
             this.dtpStartDate.ValueChanged += DtpStartDate_ValueChanged;
-            this.cmbTheme.SelectedIndexChanged += CmbTheme_SelectedIndexChanged;
+            this.cmbThemes.SelectedIndexChanged += CmbThemes_SelectedIndexChanged;
+
+
+            //
+            if (this.isAutoStart)
+            {
+                this.WindowState = FormWindowState.Minimized;
+                //启动
+                btnStart_Click(this, new EventArgs());
+            }
 
         }
 
 
 
 
-        private void CmbTheme_SelectedIndexChanged(object sender, EventArgs e)
+        private void CmbThemes_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.appConfig.Theme = this.cmbTheme.SelectedItem.ToString();
+            this.appConfig.Theme = this.cmbThemes.SelectedItem.ToString();
+            this.themeFolder_path = $"{this.work_dir}\\themes\\{this.appConfig.Theme}\\config.json";
             saveAppConfig();
         }
 
@@ -134,7 +163,11 @@ namespace PCMonitor.UI
         private void ckbAutoStart_CheckedChanged(object sender, EventArgs e)
         {
             this.appConfig.IsAutoStart = this.ckbAutoStart.Checked;
+
+            setupTaskScheduleOnLogon(this.appConfig.IsAutoStart);
+
             saveAppConfig();
+
         }
 
 
@@ -165,20 +198,57 @@ namespace PCMonitor.UI
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            this.renderLauncher = new RenderLauncher();
+            disableUI();
+
+            this.btnStart.Enabled = false;
+            this.btnStop.Enabled = true;
+
+            this.renderLauncher = new RenderLauncher(this.appConfig, this.themeFolder_path);
+            this.renderLauncher.Initial();
 
             this.signal.Stop = false;
 
-            var thread = new Thread(ThreadProcSafePost);
+            this.workThread = new Thread(ThreadProcSafePost);
 
-            thread.Start();
+            this.workThread.Start();
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
             this.signal.Stop = true;
+            //等待让thread中的任务完成一次循环
+            Thread.Sleep(50);
+
+            this.btnStop.Enabled = false;
+            this.btnStart.Enabled = true;
+
+            this.enableUI();
+
         }
 
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            switch (e.CloseReason)
+            {
+                case CloseReason.WindowsShutDown:
+                case CloseReason.MdiFormClosing:
+                case CloseReason.UserClosing:
+                case CloseReason.TaskManagerClosing:
+                case CloseReason.FormOwnerClosing:
+                case CloseReason.ApplicationExitCall:
+                    this.Hide();
+                    if (this.renderLauncher != null)
+                    {
+                        this.signal.Stop = true;
+                        Thread.Sleep(50);
+                        this.renderLauncher.Dispose();
+                    }
+                    e.Cancel = false;
+                    this.Dispose();
+                    this.Close();
+                    break;
+            }
+        }
 
 
 
@@ -221,7 +291,7 @@ namespace PCMonitor.UI
         {
             var data = updateData as UIUpdateData;
             this.labFrameCount.Text = $"{data.Count}";
-            this.labRenderTime.Text = $"{data.MS}";
+            this.labRenderTime.Text = $"{data.MS}ms";
         }
 
         private void saveAppConfig()
@@ -232,17 +302,12 @@ namespace PCMonitor.UI
                 );
         }
 
-        private void saveThemeConfig()
-        {
-            File.WriteAllText(this.themeConfig_path, JsonConvert.SerializeObject(this.themeConfig));
-        }
-
         private void disableUI()
         {
             this.cmbFrameTime.Enabled = false;
             this.cmbCPUFans.Enabled = false;
             this.cmbNetInterfaces.Enabled = false;
-            this.cmbTheme.Enabled = false;
+            this.cmbThemes.Enabled = false;
             this.dtpStartDate.Enabled = false;
             this.ckbAutoStart.Enabled = false;
             this.ckbScreenProtect.Enabled = false;
@@ -253,12 +318,61 @@ namespace PCMonitor.UI
             this.cmbFrameTime.Enabled = true;
             this.cmbCPUFans.Enabled = true;
             this.cmbNetInterfaces.Enabled = true;
-            this.cmbTheme.Enabled = true;
+            this.cmbThemes.Enabled = true;
             this.dtpStartDate.Enabled = true;
             this.ckbAutoStart.Enabled = true;
-            this.ckbScreenProtect.Enabled = true;
+            //this.ckbScreenProtect.Enabled = true;
         }
 
+        public static void setupTaskScheduleOnLogon(bool enable)
+        {
+            var exe_path = typeof(Program).Assembly.Location;
+            var working_dir = Path.GetDirectoryName(exe_path);
+            var task_name = "PCMonitor_Schedule";
+
+            using (TaskService ts = new TaskService())
+            {
+                if (enable)
+                {
+                    //check if schedule alreay exist
+                    var task = ts.FindTask(task_name);
+
+                    if (task != null)
+                    {
+                        ts.RootFolder.DeleteTask(task_name);
+                    }
+
+                    var definition = ts.NewTask();
+                    definition.RegistrationInfo.Description = "PCMonitor Auto-Start";
+                    definition.Triggers.Add<LogonTrigger>(new LogonTrigger());
+                    definition.Principal.RunLevel = TaskRunLevel.Highest;
+                    definition.Actions.Add<ExecAction>(new ExecAction(exe_path, "-auto", working_dir));
+
+                    var new_task = ts.RootFolder.RegisterTaskDefinition(task_name, definition);
+                    new_task.Enabled = enable;
+
+                    MessageBox.Show("自动启动计划任务设置成功");
+
+
+                }
+                else
+                {
+                    var task = ts.FindTask(task_name);
+                    if (task != null)
+                    {
+                        ts.RootFolder.DeleteTask(task_name);
+                        MessageBox.Show("自动启动计划任务删除成功");
+                    }
+                }
+
+
+            }
+        }
+
+        private void lnkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/wanglvhang/PCMonitorForUSBScreen");
+        }
     }
 
 
