@@ -5,7 +5,7 @@ this is a pc monitor application to drive usb screen with serial portal(com).
 ### 简介
 目前提供的监控主题样式如下图所示，本应用支持完全的主题自定义。
 
-![1627887896250 (1)](https://user-images.githubusercontent.com/936437/128888742-704ef9c1-09b2-4d1c-aa92-1b94fbef518e.jpg)  
+![1627887896250 (1)](https://user-images.githubusercontent.com/936437/128889172-e0482213-ce06-4474-a216-d86c750a249b.jpg)  
 ![83715](https://user-images.githubusercontent.com/936437/127745159-8d2f7d5f-a9fc-40ae-8595-cb7bec2c9854.png)  
 ![image](https://user-images.githubusercontent.com/936437/128888525-04add348-945d-4f76-a372-4d1be5c99554.png)  
 
