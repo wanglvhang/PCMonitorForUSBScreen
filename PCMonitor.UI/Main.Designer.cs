@@ -373,12 +373,12 @@ namespace PCMonitor.UI
             // lnkGitHub
             // 
             this.lnkGitHub.AutoSize = true;
-            this.lnkGitHub.Location = new System.Drawing.Point(9, 83);
+            this.lnkGitHub.Location = new System.Drawing.Point(9, 84);
             this.lnkGitHub.Name = "lnkGitHub";
-            this.lnkGitHub.Size = new System.Drawing.Size(161, 12);
+            this.lnkGitHub.Size = new System.Drawing.Size(89, 12);
             this.lnkGitHub.TabIndex = 1;
             this.lnkGitHub.TabStop = true;
-            this.lnkGitHub.Text = "更多详细内容请点击这里查看";
+            this.lnkGitHub.Text = "项目GitHub主页";
             this.lnkGitHub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkGitHub_LinkClicked);
             // 
             // label12
