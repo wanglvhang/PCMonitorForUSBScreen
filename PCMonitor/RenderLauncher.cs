@@ -81,12 +81,30 @@ namespace PCMonitor
 
 
 
+        public static void SetBrightness(eScreenDevice device,int brightness)
+        {
+            if(device == eScreenDevice.inch35)
+            {
+                Device3_5.Instance.Connect();
+                Device3_5.Instance.Startup();
+                int device_bright_value = 255 - (int)(255 * brightness / 100);
+                Device3_5.Instance.SetBrightness(device_bright_value);
+            }
+        }
+
+
+
     }
 
 
     public class RenderStopSignal
     {
         public bool Stop { get; set; }
+    }
+
+    public enum eScreenDevice
+    {
+        inch35,
     }
 
 }

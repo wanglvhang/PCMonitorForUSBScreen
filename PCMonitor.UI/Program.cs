@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,9 +20,53 @@ namespace PCMonitor.UI
             {
                 isAuto = true;
             }
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Main(isAuto));
+
+
+            if (RunningInstance() == null)
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Main(isAuto));
+            }
+            else
+            {
+                MessageBox.Show("PCMonitor.UI 已运行 / is running.");
+            }
+
         }
+
+
+        public static System.Diagnostics.Process RunningInstance()
+        {
+
+            var current = System.Diagnostics.Process.GetCurrentProcess();
+
+            var processes = System.Diagnostics.Process.GetProcesses();
+
+            foreach (var process in processes) 
+            {
+                if (process.Id != current.Id)
+                {
+                    //check process name
+                    if (process.ProcessName == current.ProcessName)
+                    {
+                        return process;
+                    }
+
+                    //check process location
+                    //if (System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("/", @"/") == current.MainModule.FileName)
+                    //{
+                    //    return process;
+                    //}
+                }
+
+            } 
+
+            return null;
+
+        }
+
+
+
     }
 }

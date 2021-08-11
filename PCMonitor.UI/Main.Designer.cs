@@ -63,11 +63,15 @@ namespace PCMonitor.UI
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.lnkGitHub = new System.Windows.Forms.LinkLabel();
             this.label12 = new System.Windows.Forms.Label();
+            this.tbarBrightness = new System.Windows.Forms.TrackBar();
+            this.label7 = new System.Windows.Forms.Label();
+            this.labBrightness = new System.Windows.Forms.Label();
             this.ContextMenuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbarBrightness)).BeginInit();
             this.SuspendLayout();
             // 
             // NotifyIcon
@@ -96,7 +100,7 @@ namespace PCMonitor.UI
             // 
             this.btnStart.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnStart.ForeColor = System.Drawing.Color.Teal;
-            this.btnStart.Location = new System.Drawing.Point(384, 263);
+            this.btnStart.Location = new System.Drawing.Point(412, 265);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(93, 38);
             this.btnStart.TabIndex = 1;
@@ -108,7 +112,7 @@ namespace PCMonitor.UI
             // 
             this.btnStop.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnStop.ForeColor = System.Drawing.Color.OrangeRed;
-            this.btnStop.Location = new System.Drawing.Point(284, 263);
+            this.btnStop.Location = new System.Drawing.Point(312, 265);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(93, 38);
             this.btnStop.TabIndex = 2;
@@ -202,7 +206,7 @@ namespace PCMonitor.UI
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Location = new System.Drawing.Point(223, 128);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(291, 126);
+            this.groupBox2.Size = new System.Drawing.Size(291, 122);
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "运行信息/Running Info";
@@ -248,7 +252,7 @@ namespace PCMonitor.UI
             // ckbAutoStart
             // 
             this.ckbAutoStart.AutoSize = true;
-            this.ckbAutoStart.Location = new System.Drawing.Point(58, 275);
+            this.ckbAutoStart.Location = new System.Drawing.Point(37, 266);
             this.ckbAutoStart.Name = "ckbAutoStart";
             this.ckbAutoStart.Size = new System.Drawing.Size(72, 16);
             this.ckbAutoStart.TabIndex = 12;
@@ -258,7 +262,7 @@ namespace PCMonitor.UI
             // ckbScreenProtect
             // 
             this.ckbScreenProtect.AutoSize = true;
-            this.ckbScreenProtect.Location = new System.Drawing.Point(173, 275);
+            this.ckbScreenProtect.Location = new System.Drawing.Point(152, 265);
             this.ckbScreenProtect.Name = "ckbScreenProtect";
             this.ckbScreenProtect.Size = new System.Drawing.Size(48, 16);
             this.ckbScreenProtect.TabIndex = 13;
@@ -278,7 +282,7 @@ namespace PCMonitor.UI
             this.groupBox3.Controls.Add(this.cmbNetInterfaces);
             this.groupBox3.Location = new System.Drawing.Point(21, 12);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(196, 242);
+            this.groupBox3.Size = new System.Drawing.Size(196, 238);
             this.groupBox3.TabIndex = 14;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "配置信息/Configuration Info";
@@ -301,7 +305,7 @@ namespace PCMonitor.UI
             "800",
             "1000",
             "1200"});
-            this.cmbFrameTime.Location = new System.Drawing.Point(18, 41);
+            this.cmbFrameTime.Location = new System.Drawing.Point(16, 40);
             this.cmbFrameTime.Name = "cmbFrameTime";
             this.cmbFrameTime.Size = new System.Drawing.Size(146, 20);
             this.cmbFrameTime.TabIndex = 12;
@@ -363,7 +367,7 @@ namespace PCMonitor.UI
             // 
             this.groupBox4.Controls.Add(this.lnkGitHub);
             this.groupBox4.Controls.Add(this.label12);
-            this.groupBox4.Location = new System.Drawing.Point(18, 328);
+            this.groupBox4.Location = new System.Drawing.Point(21, 388);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(496, 117);
             this.groupBox4.TabIndex = 15;
@@ -389,11 +393,42 @@ namespace PCMonitor.UI
             this.label12.TabIndex = 0;
             this.label12.Text = "渲染耗时指的是从获取硬件信息到信息呈现到屏幕所耗费的时间，实际上的每帧时间控制为设置的单帧时间。\r\n\r\n渲染次数既总共渲染过的帧的总数。";
             // 
+            // tbarBrightness
+            // 
+            this.tbarBrightness.Location = new System.Drawing.Point(37, 326);
+            this.tbarBrightness.Maximum = 100;
+            this.tbarBrightness.Name = "tbarBrightness";
+            this.tbarBrightness.Size = new System.Drawing.Size(225, 45);
+            this.tbarBrightness.TabIndex = 14;
+            this.tbarBrightness.Value = 50;
+            this.tbarBrightness.ValueChanged += new System.EventHandler(this.tbarBrightness_ValueChanged);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(35, 300);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(95, 12);
+            this.label7.TabIndex = 16;
+            this.label7.Text = "亮度/Brightness";
+            // 
+            // labBrightness
+            // 
+            this.labBrightness.AutoSize = true;
+            this.labBrightness.Location = new System.Drawing.Point(260, 334);
+            this.labBrightness.Name = "labBrightness";
+            this.labBrightness.Size = new System.Drawing.Size(17, 12);
+            this.labBrightness.TabIndex = 17;
+            this.labBrightness.Text = "50";
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(535, 465);
+            this.ClientSize = new System.Drawing.Size(533, 517);
+            this.Controls.Add(this.labBrightness);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.tbarBrightness);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.ckbScreenProtect);
@@ -420,6 +455,7 @@ namespace PCMonitor.UI
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbarBrightness)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -459,6 +495,9 @@ namespace PCMonitor.UI
         private System.Windows.Forms.Label labDevice;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.LinkLabel lnkGitHub;
+        private System.Windows.Forms.TrackBar tbarBrightness;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label labBrightness;
     }
 }
 

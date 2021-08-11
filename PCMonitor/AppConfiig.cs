@@ -20,5 +20,7 @@ namespace PCMonitor
 
         public bool ScreenProtect { get; set; }
 
+        public int ScreenBrightness { get; set; }
+
     }
 }

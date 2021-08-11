@@ -25,6 +25,7 @@ namespace PCMonitor.UI
             synchronizationContext = SynchronizationContext.Current;
             this.btnStop.Enabled = false;
             this.isAutoStart = autoStart;
+            this.labBrightness.Text = this.tbarBrightness.Value.ToString();
         }
 
 
@@ -126,6 +127,7 @@ namespace PCMonitor.UI
             //screenprotect
             this.ckbScreenProtect.Checked = this.appConfig.ScreenProtect;
             this.ckbScreenProtect.Enabled = false;
+            this.tbarBrightness.Value = this.appConfig.ScreenBrightness;
 
             //初始化完成后挂载时间
             this.cmbNetInterfaces.SelectedIndexChanged += CmbNetInterfaces_SelectedIndexChanged;
@@ -193,10 +195,6 @@ namespace PCMonitor.UI
 
 
 
-
-
-
-
         private void Main_SizeChanged(object sender, EventArgs e)
         {
             if (this.WindowState != FormWindowState.Minimized)
@@ -247,29 +245,58 @@ namespace PCMonitor.UI
 
         }
 
+        private void lnkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/wanglvhang/PCMonitorForUSBScreen");
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void tbarBrightness_ValueChanged(object sender, EventArgs e)
+        {
+            this.labBrightness.Text = this.tbarBrightness.Value.ToString();
+
+            RenderLauncher.SetBrightness(eScreenDevice.inch35, this.tbarBrightness.Value);
+
+            Thread.Sleep(30);
+        }
+
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            switch (e.CloseReason)
+            try
             {
-                case CloseReason.WindowsShutDown:
-                case CloseReason.MdiFormClosing:
-                case CloseReason.UserClosing:
-                case CloseReason.TaskManagerClosing:
-                case CloseReason.FormOwnerClosing:
-                case CloseReason.ApplicationExitCall:
-                    this.Hide();
-                    if (this.renderLauncher != null)
-                    {
-                        this.signal.Stop = true;
-                        Thread.Sleep(50);
-                        this.renderLauncher.Dispose();
-                    }
-                    e.Cancel = false;
-                    this.Dispose();
-                    this.Close();
-                    break;
+                switch (e.CloseReason)
+                {
+                    case CloseReason.WindowsShutDown:
+                    case CloseReason.MdiFormClosing:
+                    case CloseReason.UserClosing:
+                    case CloseReason.TaskManagerClosing:
+                    case CloseReason.FormOwnerClosing:
+                    case CloseReason.ApplicationExitCall:
+                        this.Hide();
+                        if (this.renderLauncher != null)
+                        {
+                            this.signal.Stop = true;
+                            Thread.Sleep(50);
+                            this.renderLauncher.Dispose();
+                        }
+                        e.Cancel = false;
+                        this.Dispose();
+                        this.Close();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
+
+
+
 
 
 
@@ -330,6 +357,7 @@ namespace PCMonitor.UI
             this.dtpStartDate.Enabled = false;
             this.ckbAutoStart.Enabled = false;
             this.ckbScreenProtect.Enabled = false;
+            this.tbarBrightness.Enabled = false;
         }
 
         private void enableUI()
@@ -341,6 +369,7 @@ namespace PCMonitor.UI
             this.dtpStartDate.Enabled = true;
             this.ckbAutoStart.Enabled = true;
             //this.ckbScreenProtect.Enabled = true;
+            this.tbarBrightness.Enabled = false;
         }
 
         public void setupTaskScheduleOnLogon(bool enable)
@@ -387,15 +416,7 @@ namespace PCMonitor.UI
             }
         }
 
-        private void lnkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://github.com/wanglvhang/PCMonitorForUSBScreen");
-        }
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
     }
 
 
