@@ -262,6 +262,9 @@ namespace PCMonitor.UI
             RenderLauncher.SetBrightness(eScreenDevice.inch35, this.tbarBrightness.Value);
 
             Thread.Sleep(30);
+
+            this.appConfig.ScreenBrightness = this.tbarBrightness.Value;
+            saveAppConfig();
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
