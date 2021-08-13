@@ -15,12 +15,12 @@ PCMonitor.Editor，用于可视化编辑主题的工具。（开发中...）
 
 
 ### 界面与效果
-目前仅提供一个默认主题，样式如下图所示
-实际效果
+目前仅提供一个默认主题，样式如下图所示  
+实际效果  
 ![1627887896250 (1)](https://user-images.githubusercontent.com/936437/128889172-e0482213-ce06-4474-a216-d86c750a249b.jpg)  
-监控界面
+监控界面  
 ![83715](https://user-images.githubusercontent.com/936437/127745159-8d2f7d5f-a9fc-40ae-8595-cb7bec2c9854.png)  
-程序界面
+程序界面  
 ![image](https://user-images.githubusercontent.com/936437/129377518-570441e4-479d-449c-904f-d150f5ca595f.png)
 
 
