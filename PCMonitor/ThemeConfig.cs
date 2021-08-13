@@ -54,11 +54,4 @@ namespace PCMonitor
 
     }
 
-    public enum eWidgetType
-    {
-        Oscillogram,
-        PercentBar,
-        ArchBar,
-        TextLabel
-    }
 }

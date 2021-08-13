@@ -240,40 +240,4 @@ namespace PCMonitor
         }
     }
 
-
-    public enum eMonitorDataType
-    {
-        CPU_Load, //小数点后一位
-        CPU_Temp, //小数点后三位
-        CPU_Hz, //小数点后两位 MHz
-        CPU_Fan_Speed, //小数点后三位
-
-        GPU_Load,//
-        GPU_Temp,//
-        GPU_Hz, // 
-
-        GPU_RAM_Total, //
-        GPU_RAM_Used,
-        GPU_RAM_Load,//
-
-        //GPU_Fan_Load,//float 0.1
-        GPU_Fan_Speed,
-
-        //RAM_Total,
-        RAM_Used,
-        RAM_Free,
-        RAM_Load,//float 0.1
-
-        //IPAddress,
-
-        Network_Upload,//B
-        Network_Download,
-
-        Total_Days,
-
-
-        Custom_GPU_RAM_UsedTotal,//
-
-    }
-
 }
