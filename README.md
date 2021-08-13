@@ -1,6 +1,6 @@
 # PCMonitorForUSBScreen
 这是一个将电脑监控数据渲染到 USB 屏幕（用单片机驱动的屏幕）的应用程序，监控屏的界面可以完全自定义。
-this is a pc monitor application to drive usb screen with serial portal(com).
+this is a pc monitor application to drive usb screen with serial portal(com).  
 开发这个项目的初衷是因为购买的电脑监控屏附带的软件无法满足个人的需求。
 该项目的目标是适配此类以单片机驱动的屏幕，使其可以作为PC的监控屏幕。欢迎硬件大佬合作提供固件接口以进行适配。
 
