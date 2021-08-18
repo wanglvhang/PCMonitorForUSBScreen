@@ -30,6 +30,7 @@ namespace PCMonitor
             this.themePath = theme_path;
             this.themeConfig = themeCon;
             this.Screen = Device3_5.Instance;
+            //this.Screen = new VirtualScreen();
         }
 
 

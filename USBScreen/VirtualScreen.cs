@@ -55,7 +55,7 @@ namespace USBScreen
 
         public void SaveImage()
         {
-            this.canvas.Save($"{new Random().Next(100000)}.png");
+            this.canvas.Save($"virtual_imgs\\{new Random().Next(100000)}.png");
         }
 
         public void Shutdown()
@@ -75,7 +75,7 @@ namespace USBScreen
 
         public void AjustScreen(bool isMirror, bool isLandscape, bool isInvert)
         {
-            throw new NotImplementedException();
+
         }
     }
 }

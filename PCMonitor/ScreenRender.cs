@@ -80,18 +80,14 @@ namespace PCMonitor
             {
                 float? raw_data = null;
 
-                //个性化数据不从
-                if (dataType != eMonitorDataType.Custom_GPU_RAM_UsedTotal)
+                raw_data = this.MonitorDataProvider.GetData(dataType);
+
+                //若获取的数据为空，则直接返回 N/A
+                if (!raw_data.HasValue)
                 {
-                    raw_data = this.MonitorDataProvider.GetData(dataType);
-
-                    //若获取的数据为空，则直接返回 N/A
-                    if (!raw_data.HasValue)
-                    {
-                        return new DataForRender(null, "N/A");
-                    }
-
+                    return new DataForRender(null, "N/A");
                 }
+
 
                 var result_str = "N/A";
 
@@ -129,12 +125,12 @@ namespace PCMonitor
                     case eMonitorDataType.GPU_RAM_Used:
                         result_str = Math.Ceiling(raw_data.Value).ToString(); //单位为MB
                         break;
-                    case eMonitorDataType.Custom_GPU_RAM_UsedTotal:
-                        var total_gpu_ram = this.MonitorDataProvider.GetData( eMonitorDataType.GPU_RAM_Total);
-                        var used_gpu_ram = this.MonitorDataProvider.GetData(eMonitorDataType.GPU_RAM_Used);
-                        result_str = $"{Math.Ceiling(used_gpu_ram.Value)}/{total_gpu_ram}";
-                        //200/1000
-                        break;
+                    //case eMonitorDataType.Custom_GPU_RAM_UsedTotal:
+                    //    var total_gpu_ram = this.MonitorDataProvider.GetData( eMonitorDataType.GPU_RAM_Total);
+                    //    var used_gpu_ram = this.MonitorDataProvider.GetData(eMonitorDataType.GPU_RAM_Used);
+                    //    result_str = $"{Math.Ceiling(used_gpu_ram.Value)}/{total_gpu_ram}";
+                    //    //200/1000
+                    //    break;
                     case eMonitorDataType.GPU_Temp:
                         result_str = Math.Ceiling(raw_data.Value).ToString();
                         break;

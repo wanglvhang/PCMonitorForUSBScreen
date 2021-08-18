@@ -74,6 +74,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppConfiig.cs" />
+    <Compile Include="eMonitorDataType.cs" />
+    <Compile Include="eWidgetType.cs" />
     <Compile Include="RenderLauncher.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IMonitorDataProvider.cs" />
