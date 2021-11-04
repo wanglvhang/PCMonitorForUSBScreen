@@ -64,7 +64,7 @@ namespace PCMonitor
             {
                 //判断是否需要执行屏保
                 var time_since_last_screenprotect = DateTime.Now - lastRunScreenProtectTime;
-                if(this.appConfig.ScreenProtect && time_since_last_screenprotect.TotalSeconds >= 30)
+                if(this.appConfig.ScreenProtect && time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval)
                 {
                     //run screen protect
                     this.ScreenRender.ScreenProtect();
