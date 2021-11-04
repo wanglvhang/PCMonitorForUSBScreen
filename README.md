@@ -4,6 +4,8 @@ this is a pc monitor application to drive usb screen with serial portal(com).
 开发这个项目的初衷是因为购买的电脑监控屏附带的软件无法满足个人的需求。
 该项目的目标是适配此类以单片机驱动的屏幕，使其可以作为PC的监控屏幕。欢迎硬件大佬合作提供固件接口以进行适配。
 
+[点击下载程序](http://shared.lvhang.site/release/PCMonitor_v0.2.zip)
+
 ### 项目简介
 该项目的目标是实现一个通用监控副屏应用程序，可以适配各种单片机驱动的屏幕，并且支持完全的监控屏幕内容自定义能力。
 该项目的硬件监控数据获取基于 OpenHardwareMonitor 项目。
@@ -60,7 +62,7 @@ PCMonitor.Editor，用于可视化编辑主题的工具。（开发中...）
 
 
 ### 计划
-1.适配更多的屏幕，欢迎固件开发大佬合作。
+1.适配更多的屏幕，欢迎固件开发大佬合作。  
 2.提供可视化的配置工具  
 3.更健壮的渲染  
 
