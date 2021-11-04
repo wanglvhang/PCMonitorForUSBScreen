@@ -126,7 +126,6 @@ namespace PCMonitor.UI
 
             //screenprotect
             this.ckbScreenProtect.Checked = this.appConfig.ScreenProtect;
-            this.ckbScreenProtect.Enabled = false;
             this.tbarBrightness.Value = this.appConfig.ScreenBrightness;
 
             //初始化完成后挂载时间
@@ -371,7 +370,7 @@ namespace PCMonitor.UI
             this.cmbThemes.Enabled = true;
             this.dtpStartDate.Enabled = true;
             this.ckbAutoStart.Enabled = true;
-            //this.ckbScreenProtect.Enabled = true;
+            this.ckbScreenProtect.Enabled = true;
             this.tbarBrightness.Enabled = false;
         }
 

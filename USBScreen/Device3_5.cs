@@ -119,7 +119,7 @@ namespace USBScreen
                 throw new Exception("渲染的图片超出屏幕");
             }
 
-            //注意！由于设备未知的原因，渲染bitmap时，img的宽度需要是偶数
+            //注意！由于设备未知的原因，渲染bitmap时，img的宽度需要是偶数？4的整数，更具图片的stride
 
             this.sendCMD(197, posX, posY, posX + img.Width - 1 , posY + img.Height - 1 );
 
@@ -277,19 +277,19 @@ namespace USBScreen
 
 
         //通用发送指令方法
-        private void sendCMD(int int_0, int int_1, int int_2, int int_3, int int_4, byte[] bytes = null, int delay = 10)
+        private void sendCMD(int cmd_code, int left, int top, int right, int bottom, byte[] bytes = null, int delay = 10)
         {
             if (bytes == null)
             {
                 bytes = new byte[6];
             }
 
-            bytes[0] = (byte)(int_1 >> 2);
-            bytes[1] = (byte)(((int_1 & 3) << 6) + (int_2 >> 4));
-            bytes[2] = (byte)(((int_2 & 15) << 4) + (int_3 >> 6));
-            bytes[3] = (byte)(((int_3 & 63) << 2) + (int_4 >> 8));
-            bytes[4] = (byte)(int_4 & (int)byte.MaxValue);
-            bytes[5] = (byte)int_0;
+            bytes[0] = (byte)(left >> 2);
+            bytes[1] = (byte)(((left & 3) << 6) + (top >> 4));
+            bytes[2] = (byte)(((top & 15) << 4) + (right >> 6));
+            bytes[3] = (byte)(((right & 63) << 2) + (bottom >> 8));
+            bytes[4] = (byte)(bottom & (int)byte.MaxValue);
+            bytes[5] = (byte)cmd_code;
 
             this.writeToSerialPort(bytes);
 
@@ -337,8 +337,30 @@ namespace USBScreen
 
             var bitmap_data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format16bppRgb565);
 
+
             var pixel_bytes = new byte[size * 2];
-            Marshal.Copy(bitmap_data.Scan0, pixel_bytes, 0, pixel_bytes.Length);
+            if(bitmap_data.Stride == bitmap.Width * 2)
+            {
+                Marshal.Copy(bitmap_data.Scan0, pixel_bytes, 0, pixel_bytes.Length);
+            }
+            else
+            {
+                var raw_bytes = new byte[bitmap_data.Stride * bitmap.Height];
+                Marshal.Copy(bitmap_data.Scan0, raw_bytes, 0, raw_bytes.Length);
+
+                //拷贝raw_bytes到pixel_bytes 跳过stride补齐字节
+                for (int r = 0; r < bitmap.Height; r++)
+                {
+                    for (int c = 0; c < bitmap.Width * 2; c++)
+                    {
+                        var p_idx = (r * bitmap.Width * 2) + c;
+                        var r_idx = (r * bitmap_data.Stride) + c;
+                        pixel_bytes[p_idx] = raw_bytes[r_idx];
+                    }
+                }
+
+            }
+
             bitmap.UnlockBits(bitmap_data);
             return pixel_bytes;
         }

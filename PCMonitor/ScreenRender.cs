@@ -33,6 +33,55 @@ namespace PCMonitor
         }
 
 
+        public void ScreenProtect(Bitmap sp_img = null)
+        {
+            if (sp_img != null)
+            {
+                if (sp_img.Width > USBScreen.ScreenWidth || sp_img.Height > USBScreen.ScreenHeight)
+                {
+                    throw new Exception("screen protect image size is bigger then screen");
+                }
+
+                this.USBScreen.RenderBitmap(sp_img, 0, 0);
+            }
+            else
+            {
+                var r_img = new Bitmap(USBScreen.ScreenWidth, USBScreen.ScreenHeight);
+                var g_img = new Bitmap(USBScreen.ScreenWidth, USBScreen.ScreenHeight);
+                var b_img = new Bitmap(USBScreen.ScreenWidth, USBScreen.ScreenHeight);
+
+                using (var g = Graphics.FromImage(r_img))
+                {
+                    g.Clear(Color.Red);
+                }
+                using (var g = Graphics.FromImage(g_img))
+                {
+                    g.Clear(Color.Green);
+                }
+                using (var g = Graphics.FromImage(b_img))
+                {
+                    g.Clear(Color.Blue);
+                }
+
+                this.USBScreen.RenderBitmap(r_img, 0, 0);
+                this.USBScreen.RenderBitmap(g_img, 0, 0);
+                this.USBScreen.RenderBitmap(b_img, 0, 0);
+
+            }
+
+            //执行完屏保后
+            //1.重新绘制背景图
+            this.USBScreen.RenderBitmap(BGImage, 0, 0);
+
+            //2.重置所有widgets
+            foreach (var w in this.Widges)
+            {
+                w.Reset();
+            }
+
+        }
+
+
         public void Setup()
         {
             USBScreen.Connect();

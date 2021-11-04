@@ -23,6 +23,8 @@ namespace PCMonitor
         private string themePath;
         private IUSBScreen Screen;
 
+        private DateTime lastRunScreenProtectTime;
+
 
         public RenderLauncher(AppConfig appCon, string theme_path,ThemeConfig themeCon)
         {
@@ -30,6 +32,7 @@ namespace PCMonitor
             this.themePath = theme_path;
             this.themeConfig = themeCon;
             this.Screen = Device3_5.Instance;
+            this.lastRunScreenProtectTime = DateTime.Now;
             //this.Screen = new VirtualScreen();
         }
 
@@ -55,8 +58,19 @@ namespace PCMonitor
         {
 
             var count = 1;
+            //检查屏保图片显示
+
             while (true && !signal.Stop)
             {
+                //判断是否需要执行屏保
+                var time_since_last_screenprotect = DateTime.Now - lastRunScreenProtectTime;
+                if(this.appConfig.ScreenProtect && time_since_last_screenprotect.TotalSeconds >= 30)
+                {
+                    //run screen protect
+                    this.ScreenRender.ScreenProtect();
+                    lastRunScreenProtectTime = DateTime.Now;
+                }
+
                 var now = DateTime.Now;
                 this.ScreenRender.Refresh();
                 var span = DateTime.Now - now;

@@ -30,6 +30,13 @@ namespace PCMonitor.Widgets
         private Rectangle relative_contentRec { get; set; }
 
 
+        public override void Reset()
+        {
+            //下次绘制时重置widget
+            this.IsRendered = false;
+        }
+
+
 
         //所需的数据为0~100的浮点数
         public Oscillogram(eMonitorDataType dataType, Rectangle rectangle, Color frontColor, Color? bgColor, int borderWidth, Color borderColor)
@@ -58,6 +65,7 @@ namespace PCMonitor.Widgets
         public override void Render(IUSBScreen screen, Bitmap widget_canvas, DataForRender data)
         {
 
+            //如果是首次绘制或数据已满时，刷新背景进行重置
             if (!this.IsRendered || this.IsFull)
             {
                 this.InputValues.Clear();

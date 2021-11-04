@@ -71,6 +71,11 @@ namespace PCMonitor.Widgets
 
         }
 
+        public override void Reset()
+        {
+            PrevData = null;
+        }
+
     }
 
 }

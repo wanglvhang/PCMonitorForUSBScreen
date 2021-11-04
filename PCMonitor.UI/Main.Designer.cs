@@ -262,7 +262,7 @@ namespace PCMonitor.UI
             // ckbScreenProtect
             // 
             this.ckbScreenProtect.AutoSize = true;
-            this.ckbScreenProtect.Location = new System.Drawing.Point(152, 265);
+            this.ckbScreenProtect.Location = new System.Drawing.Point(150, 266);
             this.ckbScreenProtect.Name = "ckbScreenProtect";
             this.ckbScreenProtect.Size = new System.Drawing.Size(48, 16);
             this.ckbScreenProtect.TabIndex = 13;

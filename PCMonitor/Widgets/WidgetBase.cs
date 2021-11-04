@@ -33,6 +33,11 @@ namespace PCMonitor
 
         public abstract void Render(IUSBScreen screen, Bitmap widget_canvas, DataForRender data);
 
+        public virtual void Reset()
+        {
+            //do nothing by default
+        }
+
     }
 
     public class DataForRender
