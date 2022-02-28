@@ -29,7 +29,7 @@ PCMonitor.Editor，用于可视化编辑主题的工具。（开发中...）
 ### 支持设备
 
 目前应用的支持设备为：  
-[3.5寸IPS TYPEC机箱副屏](https://s.click.taobao.com/KWodsju)
+[3.5寸IPS TYPEC机箱副屏](https://item.taobao.com/item.htm?spm=a230r.1.14.16.559a2d0eb4UESF&id=638243141111&ns=1&abbucket=12#detail)
 
 **欢迎硬件开发大佬提供固件接口信息，该项目会进行适配。**
 
