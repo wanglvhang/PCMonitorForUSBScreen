@@ -77,5 +77,10 @@ namespace USBScreen
         {
 
         }
+
+        public void SetBrightness(int brightness)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -66,12 +66,16 @@ namespace PCMonitor.UI
             this.tbarBrightness = new System.Windows.Forms.TrackBar();
             this.label7 = new System.Windows.Forms.Label();
             this.labBrightness = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.numScreenprotectInterval = new System.Windows.Forms.NumericUpDown();
             this.ContextMenuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbarBrightness)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numScreenprotectInterval)).BeginInit();
             this.SuspendLayout();
             // 
             // NotifyIcon
@@ -100,7 +104,7 @@ namespace PCMonitor.UI
             // 
             this.btnStart.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnStart.ForeColor = System.Drawing.Color.Teal;
-            this.btnStart.Location = new System.Drawing.Point(412, 265);
+            this.btnStart.Location = new System.Drawing.Point(412, 321);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(93, 38);
             this.btnStart.TabIndex = 1;
@@ -112,7 +116,7 @@ namespace PCMonitor.UI
             // 
             this.btnStop.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnStop.ForeColor = System.Drawing.Color.OrangeRed;
-            this.btnStop.Location = new System.Drawing.Point(312, 265);
+            this.btnStop.Location = new System.Drawing.Point(312, 321);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(93, 38);
             this.btnStop.TabIndex = 2;
@@ -367,9 +371,9 @@ namespace PCMonitor.UI
             // 
             this.groupBox4.Controls.Add(this.lnkGitHub);
             this.groupBox4.Controls.Add(this.label12);
-            this.groupBox4.Location = new System.Drawing.Point(21, 388);
+            this.groupBox4.Location = new System.Drawing.Point(21, 375);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(496, 117);
+            this.groupBox4.Size = new System.Drawing.Size(496, 130);
             this.groupBox4.TabIndex = 15;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "说明/Caption";
@@ -377,7 +381,7 @@ namespace PCMonitor.UI
             // lnkGitHub
             // 
             this.lnkGitHub.AutoSize = true;
-            this.lnkGitHub.Location = new System.Drawing.Point(9, 84);
+            this.lnkGitHub.Location = new System.Drawing.Point(9, 104);
             this.lnkGitHub.Name = "lnkGitHub";
             this.lnkGitHub.Size = new System.Drawing.Size(89, 12);
             this.lnkGitHub.TabIndex = 1;
@@ -387,15 +391,16 @@ namespace PCMonitor.UI
             // 
             // label12
             // 
-            this.label12.Location = new System.Drawing.Point(7, 21);
+            this.label12.Location = new System.Drawing.Point(7, 17);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(483, 90);
+            this.label12.Size = new System.Drawing.Size(483, 94);
             this.label12.TabIndex = 0;
-            this.label12.Text = "渲染耗时指的是从获取硬件信息到信息呈现到屏幕所耗费的时间，实际上的每帧时间控制为设置的单帧时间。\r\n\r\n渲染次数既总共渲染过的帧的总数。";
+            this.label12.Text = "渲染耗时指的是从获取硬件信息到信息呈现到屏幕所耗费的时间，实际上的每帧时间控制为设置的单帧时间。\r\n\r\n渲染次数既总共渲染过的帧总数。\r\n\r\n屏保运行时将以红、黄" +
+    "、蓝三种颜色分别刷新一次屏幕。";
             // 
             // tbarBrightness
             // 
-            this.tbarBrightness.Location = new System.Drawing.Point(37, 326);
+            this.tbarBrightness.Location = new System.Drawing.Point(37, 324);
             this.tbarBrightness.Maximum = 100;
             this.tbarBrightness.Name = "tbarBrightness";
             this.tbarBrightness.Size = new System.Drawing.Size(225, 45);
@@ -406,7 +411,7 @@ namespace PCMonitor.UI
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(35, 300);
+            this.label7.Location = new System.Drawing.Point(35, 305);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(95, 12);
             this.label7.TabIndex = 16;
@@ -415,17 +420,62 @@ namespace PCMonitor.UI
             // labBrightness
             // 
             this.labBrightness.AutoSize = true;
-            this.labBrightness.Location = new System.Drawing.Point(260, 334);
+            this.labBrightness.Location = new System.Drawing.Point(260, 328);
             this.labBrightness.Name = "labBrightness";
             this.labBrightness.Size = new System.Drawing.Size(17, 12);
             this.labBrightness.TabIndex = 17;
             this.labBrightness.Text = "50";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label8.Location = new System.Drawing.Point(354, 267);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(89, 12);
+            this.label8.TabIndex = 19;
+            this.label8.Text = "分钟（60~720）";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label13.Location = new System.Drawing.Point(226, 266);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(77, 12);
+            this.label13.TabIndex = 20;
+            this.label13.Text = "屏保运行间隔";
+            // 
+            // numScreenprotectInterval
+            // 
+            this.numScreenprotectInterval.Location = new System.Drawing.Point(304, 263);
+            this.numScreenprotectInterval.Maximum = new decimal(new int[] {
+            720,
+            0,
+            0,
+            0});
+            this.numScreenprotectInterval.Minimum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.numScreenprotectInterval.Name = "numScreenprotectInterval";
+            this.numScreenprotectInterval.Size = new System.Drawing.Size(48, 21);
+            this.numScreenprotectInterval.TabIndex = 21;
+            this.numScreenprotectInterval.Value = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(533, 517);
+            this.Controls.Add(this.numScreenprotectInterval);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.label8);
             this.Controls.Add(this.labBrightness);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.tbarBrightness);
@@ -456,6 +506,7 @@ namespace PCMonitor.UI
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbarBrightness)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numScreenprotectInterval)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -498,6 +549,9 @@ namespace PCMonitor.UI
         private System.Windows.Forms.TrackBar tbarBrightness;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label labBrightness;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.NumericUpDown numScreenprotectInterval;
     }
 }
 

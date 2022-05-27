@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -90,7 +91,10 @@ namespace PCMonitor
 
             USBScreen.AjustScreen(false, true, true);
 
+            var sw = new Stopwatch();
+            sw.Start(); 
             USBScreen.RenderBitmap(BGImage, 0, 0);
+            sw.Stop();
 
             this.build();
         }

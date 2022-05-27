@@ -25,7 +25,7 @@ namespace PCMonitor.UI
             synchronizationContext = SynchronizationContext.Current;
             this.btnStop.Enabled = false;
             this.isAutoStart = autoStart;
-            this.labBrightness.Text = this.tbarBrightness.Value.ToString();
+            this.labBrightness.Text = this.tbarBrightness.Value.ToString();//初始化亮度值的显示
         }
 
 
@@ -94,7 +94,6 @@ namespace PCMonitor.UI
 
 
             //themes,get all folder under theme folder
-            //var folders = Directory.GetDirectories(themes_path);
             var directory = new DirectoryInfo(themes_path);
             var theme_folders = directory.GetDirectories();
             foreach (var di in theme_folders)
@@ -126,6 +125,9 @@ namespace PCMonitor.UI
 
             //screenprotect
             this.ckbScreenProtect.Checked = this.appConfig.ScreenProtect;
+            //this.txtScreenprotectInterval.Text = this.appConfig.ScreenProtectInterval.ToString();
+            this.numScreenprotectInterval.Value = this.appConfig.ScreenProtectInterval;
+
             this.tbarBrightness.Value = this.appConfig.ScreenBrightness;
 
             //初始化完成后挂载时间
@@ -138,6 +140,9 @@ namespace PCMonitor.UI
             this.ckbAutoStart.CheckedChanged += CkbAutoStart_CheckedChanged;
             this.ckbScreenProtect.CheckedChanged += CkbScreenProtect_CheckedChanged;
 
+            //this.txtScreenprotectInterval.TextChanged += TxtScreenprotectInterval_TextChanged;
+            this.numScreenprotectInterval.ValueChanged += new System.EventHandler(this.numScreenprotectInterval_ValueChanged);
+
 
             //自动运行
             if (this.isAutoStart)
@@ -149,11 +154,30 @@ namespace PCMonitor.UI
 
         }
 
+
+        private void numScreenprotectInterval_ValueChanged(object sender, EventArgs e)
+        {
+            //this.appConfig.ScreenProtectInterval = Convert.ToInt32(this.numScreenprotectInterval.Value);
+            var value = this.numScreenprotectInterval.Value;
+            if(value < 60)
+            {
+                value = 60;
+            }
+            else if(value > 720)
+            {
+                value = 720;
+            }
+            this.appConfig.ScreenProtectInterval = Convert.ToInt32(value);
+            saveAppConfig();
+        }
+
         private void CkbScreenProtect_CheckedChanged(object sender, EventArgs e)
         {
             this.appConfig.ScreenProtect = this.ckbScreenProtect.Checked;
             saveAppConfig();
         }
+
+
 
         private void CkbAutoStart_CheckedChanged(object sender, EventArgs e)
         {
@@ -166,6 +190,11 @@ namespace PCMonitor.UI
             this.appConfig.Theme = this.cmbThemes.SelectedItem.ToString();
             this.themeFolder_path = $"{this.work_dir}\\themes\\{this.appConfig.Theme}\\config.json";
             saveAppConfig();
+
+            //切换设备，dispose旧设备的连接
+            
+
+
         }
 
         private void DtpStartDate_ValueChanged(object sender, EventArgs e)
@@ -221,6 +250,8 @@ namespace PCMonitor.UI
             this.btnStart.Enabled = false;
             this.btnStop.Enabled = true;
 
+            //根据theme实例化对应的 iusbscreen实现类型
+            //TODO
             this.renderLauncher = new RenderLauncher(this.appConfig, this.themeFolder_path,this.themeConfig);
             this.renderLauncher.Initial();
 
@@ -258,7 +289,10 @@ namespace PCMonitor.UI
         {
             this.labBrightness.Text = this.tbarBrightness.Value.ToString();
 
-            RenderLauncher.SetBrightness(eScreenDevice.inch35, this.tbarBrightness.Value);
+            var device = this.themeConfig.device.toEnum<eScreenDevice>();
+            var usbScreen = RenderLauncher.GetUSBScreenByDevice(device);
+
+            usbScreen.SetBrightness(this.tbarBrightness.Value);
 
             Thread.Sleep(30);
 
@@ -360,6 +394,7 @@ namespace PCMonitor.UI
             this.ckbAutoStart.Enabled = false;
             this.ckbScreenProtect.Enabled = false;
             this.tbarBrightness.Enabled = false;
+            this.numScreenprotectInterval.Enabled = false;
         }
 
         private void enableUI()
@@ -371,7 +406,8 @@ namespace PCMonitor.UI
             this.dtpStartDate.Enabled = true;
             this.ckbAutoStart.Enabled = true;
             this.ckbScreenProtect.Enabled = true;
-            this.tbarBrightness.Enabled = false;
+            this.tbarBrightness.Enabled = true;
+            this.numScreenprotectInterval.Enabled = true;
         }
 
         public void setupTaskScheduleOnLogon(bool enable)
@@ -417,7 +453,6 @@ namespace PCMonitor.UI
 
             }
         }
-
 
     }
 

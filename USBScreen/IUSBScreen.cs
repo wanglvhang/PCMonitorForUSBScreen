@@ -27,5 +27,7 @@ namespace USBScreen
         void RenderPixels(Color pixelColor, IEnumerable<Point> points);
 
         void RenderBitmap(Bitmap img, int posX, int posY);
+
+        void SetBrightness(int brightness);
     }
 }

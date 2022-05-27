@@ -35,13 +35,10 @@ namespace USBScreen
         }
 
 
-        public static Device3_5 Instance
+        public static Device3_5 GetInstance()
         {
-            get
-            {
-                if (instance == null) instance = new Device3_5();
-                return instance;
-            }
+            if (instance == null) instance = new Device3_5();
+            return instance;
         }
 
 
@@ -120,6 +117,7 @@ namespace USBScreen
             }
 
             //注意！由于设备未知的原因，渲染bitmap时，img的宽度需要是偶数？4的整数，更具图片的stride
+            //上面的问题已经解决
 
             this.sendCMD(197, posX, posY, posX + img.Width - 1 , posY + img.Height - 1 );
 
@@ -266,10 +264,15 @@ namespace USBScreen
 
         }
 
-        //value值为0到255， 值越小越亮
-        public void SetBrightness(int value)
+        //value值为0到255， 值越小越亮 , 传入的 brightness 为 1~100 越高越亮
+        public void SetBrightness(int brightness)
         {
-            this.sendCMD(110, value, 0, 0, 0);
+            this.Connect();
+            this.Startup();
+
+            int device_bright_value = 255 - (int)(255 * brightness / 100);
+
+            this.sendCMD(110, device_bright_value, 0, 0, 0);
         }
 
 

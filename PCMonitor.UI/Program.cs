@@ -30,7 +30,7 @@ namespace PCMonitor.UI
             }
             else
             {
-                MessageBox.Show("PCMonitor.UI 已运行 / is running.");
+                MessageBox.Show("PCMonitor.UI 已运行 / already running.");
             }
 
         }

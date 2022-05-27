@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>PCMonitor.UI</RootNamespace>
     <AssemblyName>PCMonitor.UI</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -26,6 +26,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -91,6 +92,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -117,6 +119,10 @@
     <ProjectReference Include="..\PCMonitor\PCMonitor.csproj">
       <Project>{0b2ccd48-3a70-4762-8feb-c24fa893531e}</Project>
       <Name>PCMonitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\USBScreen\USBScreen.csproj">
+      <Project>{ebbb8308-6bfd-4f08-b0a7-515b9f64885c}</Project>
+      <Name>USBScreen</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

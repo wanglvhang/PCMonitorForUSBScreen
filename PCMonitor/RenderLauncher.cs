@@ -26,14 +26,32 @@ namespace PCMonitor
         private DateTime lastRunScreenProtectTime;
 
 
+        public static IUSBScreen GetUSBScreenByDevice(eScreenDevice device)
+        {
+            if (device == eScreenDevice.inch35)
+            {
+                return Device3_5.GetInstance();
+            }
+            else if (device == eScreenDevice.sun35)
+            {
+                //return SunScreen3_5
+                return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
         public RenderLauncher(AppConfig appCon, string theme_path,ThemeConfig themeCon)
         {
             this.appConfig = appCon;
             this.themePath = theme_path;
             this.themeConfig = themeCon;
-            this.Screen = Device3_5.Instance;
+            var device = themeCon.device.toEnum<eScreenDevice>();
+            this.Screen = GetUSBScreenByDevice(device);
             this.lastRunScreenProtectTime = DateTime.Now;
-            //this.Screen = new VirtualScreen();
         }
 
 
@@ -64,7 +82,7 @@ namespace PCMonitor
             {
                 //判断是否需要执行屏保
                 var time_since_last_screenprotect = DateTime.Now - lastRunScreenProtectTime;
-                if(this.appConfig.ScreenProtect && time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval)
+                if(this.appConfig.ScreenProtect && time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval * 60)
                 {
                     //run screen protect
                     this.ScreenRender.ScreenProtect();
@@ -96,18 +114,6 @@ namespace PCMonitor
 
 
 
-        public static void SetBrightness(eScreenDevice device,int brightness)
-        {
-            if(device == eScreenDevice.inch35)
-            {
-                Device3_5.Instance.Connect();
-                Device3_5.Instance.Startup();
-                int device_bright_value = 255 - (int)(255 * brightness / 100);
-                Device3_5.Instance.SetBrightness(device_bright_value);
-            }
-        }
-
-
 
     }
 
@@ -120,6 +126,7 @@ namespace PCMonitor
     public enum eScreenDevice
     {
         inch35,
+        sun35,
     }
 
 }

@@ -4,7 +4,7 @@
   "startDate": "1990/12/12",
   "frameTime": 1000,
   "theme": "default",
-  "screenProtect": false,
-  "ScreenProtectInterval": 3600,
+  "screenProtect": true,
+  "ScreenProtectInterval": 120,
   "screenBrightness": 43
 }
