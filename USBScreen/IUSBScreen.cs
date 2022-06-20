@@ -9,18 +9,46 @@ namespace USBScreen
 {
     public interface IUSBScreen:IDisposable
     {
+
+        //屏幕的属性
+        //屏幕需要在startup后设置好屏幕的默认的宽高像素
         int ScreenWidth { get; }
         int ScreenHeight { get; }
+
+        eScreenStatus Status { get; }
+
+        //屏幕常规操作
+
+        //连接
         void Connect();
 
-        //屏幕需要在startup后设置好屏幕的默认的宽高像素
+        //启动/打开
         void Startup();
 
+        //重启
         void Restart();
 
-        void AjustScreen(bool isMirror, bool isLandscape, bool isInvert);
-
+        //关闭
         void Shutdown();
+
+
+        //void AjustScreen(bool isMirror, bool isLandscape, bool isInvert);
+
+        //镜像设置
+        void SetMirror(bool isMirror);
+
+        //设置为横屏
+        void SetLandscapeDisplay(bool isInvert);
+
+        //设置为竖屏
+        void SetVerticalDisplay(bool isInvert);
+
+        //设置亮度
+        void SetBrightness(int brightness);
+
+
+
+        //渲染与绘制相关方法
 
         void RenderPixels(int offsetX, int offsetY, Color pixelColor, byte[] coordinates);
 
@@ -28,6 +56,29 @@ namespace USBScreen
 
         void RenderBitmap(Bitmap img, int posX, int posY);
 
-        void SetBrightness(int brightness);
+
+        //绘制圆弧
+
+
+        //绘制直线
+
+
+        //绘制文字
+
+
+        //绘制矩形
+
+
     }
+
+
+    public enum eScreenStatus
+    {
+        UnKnown,
+        Connected,
+        NotFound,
+        Error
+    }
+
+
 }

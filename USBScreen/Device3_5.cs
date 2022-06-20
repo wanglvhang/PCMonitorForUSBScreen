@@ -13,31 +13,36 @@ namespace USBScreen
 
     //the device for this class is https://item.taobao.com/item.htm?spm=a1z09.2.0.0.1fe82e8dugX098&id=638243141111&_u=jcj8c444ae
     //the PNPDeviceID for this device is USB35INCHIPSV2
-    public class Device3_5:IDisposable,IUSBScreen
+    public class Device3_5:IUSBScreen
     {
         public string COMName { get; private set; }
 
         public const string PNPDeviceID = "USB35INCHIPSV2";
 
+        //public const string PNPDeviceID = "XXXXXXXXXX";
+
         public SerialPort SerialPort { get; private set; }
 
-        public int ScreenWidth { get; private set; } = 0;
+        public int ScreenWidth { get; private set; } = 480;
 
-        public int ScreenHeight { get; private set; } = 0;
+        public int ScreenHeight { get; private set; } = 320;
+
+        public eScreenStatus Status { get; private set; } = eScreenStatus.UnKnown;
 
 
         private static Device3_5 instance;
 
 
-        private Device3_5()
+        private Device3_5(int width,int height)
         {
-            
+            this.ScreenWidth = width;
+            this.ScreenHeight = height;
         }
 
 
-        public static Device3_5 GetInstance()
+        public static Device3_5 GetInstance(int width, int height)
         {
-            if (instance == null) instance = new Device3_5();
+            if (instance == null) instance = new Device3_5(width,height);
             return instance;
         }
 
@@ -45,36 +50,46 @@ namespace USBScreen
         //连接
         public void Connect()
         {
-            if (this.SerialPort == null)
+            try
             {
-                using (var searcher = new ManagementObjectSearcher("select * from Win32_SerialPort"))
+                if (this.SerialPort == null)
                 {
-                    var mos = searcher.Get();
-                    //查找 PNPDeviceID 包含 USB35INCHIPSV2 的对象
-                    var obj = mos.Cast<ManagementObject>().Where(mo => mo.Properties.Cast<PropertyData>().Any(pd => pd.Name == "PNPDeviceID" && pd.Value.ToString().Contains(PNPDeviceID))).FirstOrDefault();
+                    using (var searcher = new ManagementObjectSearcher("select * from Win32_SerialPort"))
+                    {
+                        var mos = searcher.Get();
+                        //查找 PNPDeviceID 包含 USB35INCHIPSV2 的对象
+                        var obj = mos.Cast<ManagementObject>().Where(mo => mo.Properties.Cast<PropertyData>().Any(pd => pd.Name == "PNPDeviceID" && pd.Value.ToString().Contains(PNPDeviceID))).FirstOrDefault();
 
-                    if (obj == null)
-                    {
-                        throw new Exception("未找到设备串口。");
-                    }
-                    else
-                    {
-                        this.COMName = obj.Properties["DeviceID"].Value.ToString();
-                        this.SerialPort = new SerialPort(this.COMName)
+                        if (obj == null)
                         {
-                            DtrEnable = true,
-                            RtsEnable = true,
-                            ReadTimeout = 1000,
-                            BaudRate = 115200,
-                            DataBits = 8,
-                            StopBits = StopBits.One,
-                            Parity = Parity.None
-                        };
-                    }
+                            this.Status = eScreenStatus.NotFound;
+                            //throw new Exception("未找到设备串口。");
+                        }
+                        else
+                        {
+                            this.COMName = obj.Properties["DeviceID"].Value.ToString();
+                            this.SerialPort = new SerialPort(this.COMName)
+                            {
+                                DtrEnable = true,
+                                RtsEnable = true,
+                                ReadTimeout = 1000,
+                                BaudRate = 115200,
+                                DataBits = 8,
+                                StopBits = StopBits.One,
+                                Parity = Parity.None
+                            };
 
+                            this.Status = eScreenStatus.Connected;
+
+                        }
+
+                    }
                 }
             }
-
+            catch (Exception ex)
+            {
+                this.Status = eScreenStatus.Error;
+            }
         }
 
         //释放
@@ -89,19 +104,22 @@ namespace USBScreen
             Device3_5.instance = null;
         }
 
+        //关闭，熄灭屏幕
         public void Shutdown()
         {
             sendCMD(108, 0, 0, 0, 0);
         }
 
+        //开启，即点亮屏幕
         public void Startup()
         {
             sendCMD(109, 0, 0, 0, 0);
 
             //设置默认的显示方式
-            this.AjustScreen(false, true, true);
+            //this.AjustScreen(false, true, true);
         }
 
+        //重启
         public void Restart()
         {
             this.sendCMD(101, 0, 0, 0, 0);
@@ -217,9 +235,9 @@ namespace USBScreen
 
         }
 
-        public void AjustScreen(bool isMirror, bool isLandscape, bool isInvert)
-        {
 
+        public void SetMirror(bool isMirror)
+        {
             if (isMirror)
             {
                 sendCMD122(1);
@@ -227,42 +245,47 @@ namespace USBScreen
             else
             {
                 sendCMD122(0);
-
             }
+        }
 
+        public void SetLandscapeDisplay(bool isInvert)
+        {
             int cmd_num = 3;
+            int width = 320;
+            int height = 480;
             //横屏 + 180度 3
-            if (isLandscape && isInvert)
+            if (isInvert)
             {
                 cmd_num = 3;
-                this.ScreenWidth = 480;
-                this.ScreenHeight = 320;
             }
             //横屏 + 0度   2
-            else if (isLandscape && !isInvert)
+            else if (!isInvert)
             {
                 cmd_num = 2;
-                this.ScreenWidth = 480;
-                this.ScreenHeight = 320;
             }
+
+            sendCMD121(cmd_num, width, height);
+        }
+
+        public void SetVerticalDisplay(bool isInvert)
+        {
+            int cmd_num = 1;
+            int width = 480;
+            int height = 320;
             //竖屏 + 180度 1
-            else if (!isLandscape && isInvert)
+            if (isInvert)
             {
                 cmd_num = 1;
-                this.ScreenWidth = 320;
-                this.ScreenHeight = 480;
             }
             //竖屏 + 0度   0
-            else if (!isLandscape && !isInvert)
+            else if (!isInvert)
             {
                 cmd_num = 0;
-                this.ScreenWidth = 320;
-                this.ScreenHeight = 480;
             }
 
-            sendCMD121(cmd_num, this.ScreenWidth, this.ScreenHeight);
-
+            sendCMD121(cmd_num, width, height);
         }
+
 
         //value值为0到255， 值越小越亮 , 传入的 brightness 为 1~100 越高越亮
         public void SetBrightness(int brightness)
@@ -379,6 +402,53 @@ namespace USBScreen
             this.SerialPort.Write(bytes, 0, bytes.Length);
 
         }
+
+        //public void AjustScreen(bool isMirror, bool isLandscape, bool isInvert)
+        //{
+
+        //    if (isMirror)
+        //    {
+        //        sendCMD122(1);
+        //    }
+        //    else
+        //    {
+        //        sendCMD122(0);
+
+        //    }
+
+        //    int cmd_num = 3;
+        //    //横屏 + 180度 3
+        //    if (isLandscape && isInvert)
+        //    {
+        //        cmd_num = 3;
+        //        this.ScreenWidth = 480;
+        //        this.ScreenHeight = 320;
+        //    }
+        //    //横屏 + 0度   2
+        //    else if (isLandscape && !isInvert)
+        //    {
+        //        cmd_num = 2;
+        //        this.ScreenWidth = 480;
+        //        this.ScreenHeight = 320;
+        //    }
+        //    //竖屏 + 180度 1
+        //    else if (!isLandscape && isInvert)
+        //    {
+        //        cmd_num = 1;
+        //        this.ScreenWidth = 320;
+        //        this.ScreenHeight = 480;
+        //    }
+        //    //竖屏 + 0度   0
+        //    else if (!isLandscape && !isInvert)
+        //    {
+        //        cmd_num = 0;
+        //        this.ScreenWidth = 320;
+        //        this.ScreenHeight = 480;
+        //    }
+
+        //    sendCMD121(cmd_num, this.ScreenWidth, this.ScreenHeight);
+
+        //}
     }
 
 

@@ -411,6 +411,21 @@
         wAAAD//////4AAB////////gD/////////////////////////8=
 </value>
   </data>
+  <data name="label12.Text" xml:space="preserve">
+    <value>1.应用默认加载default文件夹中的主题。
+
+2.在运行之前需要确认屏幕的显示符合主题中定义的宽/高。
+
+3.只有在设备连接成功并且不处于运行状态时才能进行屏幕操作。
+
+4.渲染耗时指的是从获取硬件信息到信息呈现到屏幕所耗费的时间，实际上的每帧时间控制为设置的单帧时间。
+
+5.渲染次数既总共渲染过的帧总数。
+
+6.屏保运行时将以红、黄、蓝三种颜色分别刷新一次屏幕。
+
+7.如果希望该应用能支持你的屏幕，请联系 wanglvhang@qq.com 进行适配。</value>
+  </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAEAQEAAAAEAIAAoQgAAFgAAACgAAABAAAAAgAAAAAEAIAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAA

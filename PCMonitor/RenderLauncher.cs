@@ -18,19 +18,28 @@ namespace PCMonitor
 
         public ScreenRender ScreenRender { get; private set; }
 
+        public IUSBScreen USBScreen
+        {
+            get
+            {
+                return GetUSBScreenByDevice(this.screenDevice);
+            }
+        }
+
         private AppConfig appConfig;
         private ThemeConfig themeConfig;
         private string themePath;
-        private IUSBScreen Screen;
+        private eScreenDevice screenDevice;
+
 
         private DateTime lastRunScreenProtectTime;
 
 
-        public static IUSBScreen GetUSBScreenByDevice(eScreenDevice device)
+        private IUSBScreen GetUSBScreenByDevice(eScreenDevice device)
         {
             if (device == eScreenDevice.inch35)
             {
-                return Device3_5.GetInstance();
+                return Device3_5.GetInstance(this.themeConfig.width, this.themeConfig.height);
             }
             else if (device == eScreenDevice.sun35)
             {
@@ -44,29 +53,28 @@ namespace PCMonitor
         }
 
 
-        public RenderLauncher(AppConfig appCon, string theme_path,ThemeConfig themeCon)
+        public RenderLauncher(AppConfig appCon, string theme_path, ThemeConfig themeCon)
         {
             this.appConfig = appCon;
             this.themePath = theme_path;
             this.themeConfig = themeCon;
-            var device = themeCon.device.toEnum<eScreenDevice>();
-            this.Screen = GetUSBScreenByDevice(device);
+            this.screenDevice = themeCon.device.toEnum<eScreenDevice>();
             this.lastRunScreenProtectTime = DateTime.Now;
         }
 
-
-        public void Initial()
+        //包括初始化 monitor
+        public void PrepareForRun()
         {
             //read theme config
             var bg_img = new Bitmap($"{themePath}\\bg.png");
-            
+
             var start_date = Convert.ToDateTime(this.appConfig.StartDate);
 
             var mdp = new MonitorDataProvider(start_date, this.appConfig.CPUFanIndex, this.appConfig.NetworkInterface);
 
-            this.ScreenRender = new ScreenRender(bg_img, Screen, mdp, this.themeConfig);
+            this.ScreenRender = new ScreenRender(bg_img, USBScreen, mdp, this.themeConfig);
 
-            this.ScreenRender.Setup();
+            this.ScreenRender.Prepare();
 
         }
 
@@ -109,7 +117,7 @@ namespace PCMonitor
 
         public void Dispose()
         {
-            this.Screen.Shutdown();
+            this.USBScreen.Shutdown();
         }
 
 

@@ -83,18 +83,12 @@ namespace PCMonitor
         }
 
 
-        public void Setup()
+        public void Prepare()
         {
-            USBScreen.Connect();
 
-            USBScreen.Startup();
+            //USBScreen.Startup();
 
-            USBScreen.AjustScreen(false, true, true);
-
-            var sw = new Stopwatch();
-            sw.Start(); 
             USBScreen.RenderBitmap(BGImage, 0, 0);
-            sw.Stop();
 
             this.build();
         }

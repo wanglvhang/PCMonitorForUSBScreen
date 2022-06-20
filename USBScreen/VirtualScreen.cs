@@ -15,6 +15,8 @@ namespace USBScreen
 
         public Bitmap ResultImage { get { return this.canvas; } }
 
+        public eScreenStatus Status => throw new NotImplementedException();
+
         private Bitmap canvas;
         private Graphics graphics;
         public VirtualScreen()
@@ -79,6 +81,21 @@ namespace USBScreen
         }
 
         public void SetBrightness(int brightness)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetMirror(bool isMirror)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetLandscapeDisplay(bool isInvert)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetVerticalDisplay(bool isInvert)
         {
             throw new NotImplementedException();
         }

@@ -10,6 +10,11 @@ namespace PCMonitor
     public class ThemeConfig
     {
         public string device { get; set; } 
+
+        public int width { get; set; }
+
+        public int height { get; set; }
+
         public List<WidgetConfig> Widgets { get; set; }
 
     }

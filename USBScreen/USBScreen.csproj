@@ -45,9 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Device3_5.cs" />
+    <Compile Include="GXScreen_R.cs" />
     <Compile Include="IUSBScreen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SunScreen3_5.cs" />
     <Compile Include="VirtualScreen.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -47,15 +47,13 @@ namespace PCMonitor.UI
 
         private void Main_Load(object sender, EventArgs e)
         {
+
+            //读取并显示应用配置==============================
             //初始化UI内容以及读取配置
             var exe_path = typeof(Main).Assembly.Location;
             this.work_dir = Path.GetDirectoryName(exe_path);
-            var themes_path = Path.Combine(this.work_dir, "themes");
             this.appConfig_path = $"{ this.work_dir}\\app.json";
             this.appConfig = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(this.appConfig_path));
-
-            var theme_json_path = $"{this.work_dir}\\themes\\{this.appConfig.Theme}\\config.json";
-            this.themeConfig = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_json_path));
 
 
             //网卡
@@ -92,22 +90,6 @@ namespace PCMonitor.UI
                 }
             }
 
-
-            //themes,get all folder under theme folder
-            var directory = new DirectoryInfo(themes_path);
-            var theme_folders = directory.GetDirectories();
-            foreach (var di in theme_folders)
-            {
-                this.cmbThemes.Items.Add(di.Name);
-                if (di.Name.ToLower() == this.appConfig.Theme)
-                {
-                    this.cmbThemes.SelectedItem = di.Name;
-                    this.themeFolder_path = $"{this.work_dir}\\themes\\{this.appConfig.Theme}";
-                    this.labDevice.Text = this.themeConfig.device;
-                    this.labWidgetCount.Text = this.themeConfig.Widgets.Count.ToString();
-                }
-            }
-
             //isAutoStart
             using (TaskService ts = new TaskService())
             {
@@ -123,12 +105,30 @@ namespace PCMonitor.UI
                 }
             }
 
+
             //screenprotect
             this.ckbScreenProtect.Checked = this.appConfig.ScreenProtect;
-            //this.txtScreenprotectInterval.Text = this.appConfig.ScreenProtectInterval.ToString();
             this.numScreenprotectInterval.Value = this.appConfig.ScreenProtectInterval;
-
             this.tbarBrightness.Value = this.appConfig.ScreenBrightness;
+
+
+            //读取并显示主题配置=============================
+            //themes,get all folder under theme folder
+            var themes_path = Path.Combine(this.work_dir, "themes");
+            var directory = new DirectoryInfo(themes_path);
+            var theme_folders = directory.GetDirectories();
+            foreach (var di in theme_folders)
+            {
+                this.cmbThemes.Items.Add(di.Name);
+            }
+
+            //默认读取 app.json 中配置的 theme
+            this.cmbThemes.SelectedItem = this.appConfig.Theme;
+
+
+            this.initial_theme_and_renderlauncher(this.appConfig.Theme);
+
+
 
             //初始化完成后挂载时间
             this.cmbNetInterfaces.SelectedIndexChanged += CmbNetInterfaces_SelectedIndexChanged;
@@ -139,6 +139,7 @@ namespace PCMonitor.UI
 
             this.ckbAutoStart.CheckedChanged += CkbAutoStart_CheckedChanged;
             this.ckbScreenProtect.CheckedChanged += CkbScreenProtect_CheckedChanged;
+            this.tbarBrightness.ValueChanged += tbarBrightness_ValueChanged;
 
             //this.txtScreenprotectInterval.TextChanged += TxtScreenprotectInterval_TextChanged;
             this.numScreenprotectInterval.ValueChanged += new System.EventHandler(this.numScreenprotectInterval_ValueChanged);
@@ -150,6 +151,78 @@ namespace PCMonitor.UI
                 this.WindowState = FormWindowState.Minimized;
                 //启动
                 btnStart_Click(this, new EventArgs());
+            }
+
+        }
+
+
+        private void initial_theme_and_renderlauncher(string theme_name)
+        {
+
+            if (this.renderLauncher != null)
+            {
+                this.renderLauncher.Dispose();
+            }
+
+            this.btnStart.Enabled = false;
+
+            //读取并显示主题配置=============================
+
+            this.themeFolder_path = $"{this.work_dir}\\themes\\{theme_name}";
+            var theme_json_path = $"{this.work_dir}\\themes\\{theme_name}\\config.json";
+            this.themeConfig = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_json_path));
+
+            this.labDevice.Text = this.themeConfig.device;
+            this.labWidgetCount.Text = this.themeConfig.Widgets.Count.ToString();
+
+
+            //设置pnpdeviceid?
+            this.labPNPDeviceId.Text = "???";
+
+            //设备状态
+
+
+            //宽度 高度
+            this.labScreenWH.Text = $"W{this.themeConfig.width}xH{this.themeConfig.height}";
+
+            this.renderLauncher = new RenderLauncher(this.appConfig, this.themeFolder_path, this.themeConfig);
+
+            //连接设备
+            try
+            {
+                this.renderLauncher.USBScreen.Connect();
+                this.labDeviceStatus.Text = this.renderLauncher.USBScreen.Status.ToString();
+
+                //根据状态 设置文字颜色
+                if (this.renderLauncher.USBScreen.Status == USBScreen.eScreenStatus.Connected)
+                {
+                    this.labDeviceStatus.ForeColor = Color.Green;
+                }
+                else if (this.renderLauncher.USBScreen.Status == USBScreen.eScreenStatus.Error)
+                {
+                    this.labDeviceStatus.ForeColor = Color.Red;
+                }
+                else 
+                {
+                    this.labDeviceStatus.ForeColor = Color.Orange;
+                }
+
+
+                if (this.renderLauncher.USBScreen.Status == USBScreen.eScreenStatus.Connected)
+                {
+                    this.renderLauncher.USBScreen.Startup();
+                    this.renderLauncher.PrepareForRun();
+                    this.btnStart.Enabled = true;
+                }
+                else
+                {
+                    this.btnStart.Enabled = false;
+                }
+
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
 
         }
@@ -182,7 +255,6 @@ namespace PCMonitor.UI
         private void CkbAutoStart_CheckedChanged(object sender, EventArgs e)
         {
             setupTaskScheduleOnLogon(this.ckbAutoStart.Checked);
-
         }
 
         private void CmbThemes_SelectedIndexChanged(object sender, EventArgs e)
@@ -191,9 +263,7 @@ namespace PCMonitor.UI
             this.themeFolder_path = $"{this.work_dir}\\themes\\{this.appConfig.Theme}\\config.json";
             saveAppConfig();
 
-            //切换设备，dispose旧设备的连接
-            
-
+            this.initial_theme_and_renderlauncher(this.appConfig.Theme);
 
         }
 
@@ -246,14 +316,10 @@ namespace PCMonitor.UI
         private void btnStart_Click(object sender, EventArgs e)
         {
             disableUI();
+            this.updateScreenOperateBtns(true);
 
             this.btnStart.Enabled = false;
             this.btnStop.Enabled = true;
-
-            //根据theme实例化对应的 iusbscreen实现类型
-            //TODO
-            this.renderLauncher = new RenderLauncher(this.appConfig, this.themeFolder_path,this.themeConfig);
-            this.renderLauncher.Initial();
 
             this.signal.Stop = false;
 
@@ -272,12 +338,18 @@ namespace PCMonitor.UI
             this.btnStart.Enabled = true;
 
             this.enableUI();
+            this.updateScreenOperateBtns(false);
 
         }
 
         private void lnkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("https://github.com/wanglvhang/PCMonitorForUSBScreen");
+        }
+
+        private void linkAuthor_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://lvhang.site");
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -290,7 +362,8 @@ namespace PCMonitor.UI
             this.labBrightness.Text = this.tbarBrightness.Value.ToString();
 
             var device = this.themeConfig.device.toEnum<eScreenDevice>();
-            var usbScreen = RenderLauncher.GetUSBScreenByDevice(device);
+            //var usbScreen = RenderLauncher.GetUSBScreenByDevice(device);
+            var usbScreen = this.renderLauncher.USBScreen;
 
             usbScreen.SetBrightness(this.tbarBrightness.Value);
 
@@ -336,8 +409,6 @@ namespace PCMonitor.UI
 
 
 
-
-
         private IEnumerable<ISensor> GetSuperIOFanSensors()
         {
             IEnumerable<ISensor> result = null;
@@ -360,6 +431,7 @@ namespace PCMonitor.UI
 
         public void ThreadProcSafePost()
         {
+
             this.renderLauncher.Run((count, ms) =>
             {
 
@@ -395,6 +467,7 @@ namespace PCMonitor.UI
             this.ckbScreenProtect.Enabled = false;
             this.tbarBrightness.Enabled = false;
             this.numScreenprotectInterval.Enabled = false;
+
         }
 
         private void enableUI()
@@ -408,6 +481,42 @@ namespace PCMonitor.UI
             this.ckbScreenProtect.Enabled = true;
             this.tbarBrightness.Enabled = true;
             this.numScreenprotectInterval.Enabled = true;
+
+
+        }
+
+        private void updateScreenOperateBtns(bool isRunning)
+        {
+            if (isRunning)
+            {
+                this.btnMirror.Enabled = false;
+                this.btnNormal.Enabled = false;
+                this.btnLandscape.Enabled = false;
+                this.btnLandscapeInvert.Enabled = false;
+                this.btnVertical.Enabled = false;
+                this.btnVerticalInvert.Enabled = false;
+            }
+            else
+            {
+                if (this.renderLauncher.USBScreen.Status == USBScreen.eScreenStatus.Connected)
+                {
+                    this.btnMirror.Enabled = true;
+                    this.btnNormal.Enabled = true;
+                    this.btnLandscape.Enabled = true;
+                    this.btnLandscapeInvert.Enabled = true;
+                    this.btnVertical.Enabled = true;
+                    this.btnVerticalInvert.Enabled = true;
+                }
+                else
+                {
+                    this.btnMirror.Enabled = false;
+                    this.btnNormal.Enabled = false;
+                    this.btnLandscape.Enabled = false;
+                    this.btnLandscapeInvert.Enabled = false;
+                    this.btnVertical.Enabled = false;
+                    this.btnVerticalInvert.Enabled = false;
+                }
+            }
         }
 
         public void setupTaskScheduleOnLogon(bool enable)
@@ -454,6 +563,35 @@ namespace PCMonitor.UI
             }
         }
 
+        private void btnNormal_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void btnMirror_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void btnLandscape_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void btnLandscapeInvert_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void btnVertical_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void btnVerticalInvert_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
     }
 
 

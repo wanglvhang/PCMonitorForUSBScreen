@@ -7,16 +7,13 @@ using System.Threading.Tasks;
 
 namespace USBScreen
 {
-    internal class SunScreen3_5 : IUSBScreen
+    internal class GXScreen_R : IUSBScreen
     {
-        public int ScreenWidth => throw new NotImplementedException();
+        public int ScreenWidth { get; private set; }
 
-        public int ScreenHeight => throw new NotImplementedException();
+        public int ScreenHeight { get; private set; }
 
-        public void AjustScreen(bool isMirror, bool isLandscape, bool isInvert)
-        {
-            throw new NotImplementedException();
-        }
+        public eScreenStatus Status => throw new NotImplementedException();
 
         public void Connect()
         {
@@ -49,6 +46,21 @@ namespace USBScreen
         }
 
         public void SetBrightness(int brightness)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetLandscapeDisplay(bool isInvert)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetMirror(bool isMirror)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetVerticalDisplay(bool isInvert)
         {
             throw new NotImplementedException();
         }
