@@ -7,7 +7,7 @@
     <ProjectGuid>{77177D20-69E6-4EA1-A100-1EFF55B9CDFD}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>PCMonitor.UI</RootNamespace>
-    <AssemblyName>PCMonitor.UI</AssemblyName>
+    <AssemblyName>Lvhang.PCMonitor.UI</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -108,13 +108,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="themes\a11\config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="themes\default\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="themes\theme1\config.json">
+    <None Include="themes\tgusdefault\config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -132,13 +129,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="themes\a11\bg.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="themes\default\bg.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="themes\theme1\bg.png">
+    <Content Include="themes\tgusdefault\bg.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

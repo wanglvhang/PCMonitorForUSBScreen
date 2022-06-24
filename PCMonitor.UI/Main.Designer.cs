@@ -44,7 +44,7 @@ namespace PCMonitor.UI
             this.label20 = new System.Windows.Forms.Label();
             this.labDeviceStatus = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
-            this.labPNPDeviceId = new System.Windows.Forms.Label();
+            this.labComName = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
             this.labWidgetCount = new System.Windows.Forms.Label();
             this.labDevice = new System.Windows.Forms.Label();
@@ -173,7 +173,7 @@ namespace PCMonitor.UI
             this.groupBox1.Controls.Add(this.label20);
             this.groupBox1.Controls.Add(this.labDeviceStatus);
             this.groupBox1.Controls.Add(this.label18);
-            this.groupBox1.Controls.Add(this.labPNPDeviceId);
+            this.groupBox1.Controls.Add(this.labComName);
             this.groupBox1.Controls.Add(this.label21);
             this.groupBox1.Controls.Add(this.labWidgetCount);
             this.groupBox1.Controls.Add(this.labDevice);
@@ -224,23 +224,23 @@ namespace PCMonitor.UI
             this.label18.TabIndex = 16;
             this.label18.Text = "设备状态/Device Status";
             // 
-            // labPNPDeviceId
+            // labComName
             // 
-            this.labPNPDeviceId.AutoSize = true;
-            this.labPNPDeviceId.Location = new System.Drawing.Point(159, 81);
-            this.labPNPDeviceId.Name = "labPNPDeviceId";
-            this.labPNPDeviceId.Size = new System.Drawing.Size(23, 12);
-            this.labPNPDeviceId.TabIndex = 15;
-            this.labPNPDeviceId.Text = "N/A";
+            this.labComName.AutoSize = true;
+            this.labComName.Location = new System.Drawing.Point(159, 81);
+            this.labComName.Name = "labComName";
+            this.labComName.Size = new System.Drawing.Size(23, 12);
+            this.labComName.TabIndex = 15;
+            this.labComName.Text = "N/A";
             // 
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(82, 80);
+            this.label21.Location = new System.Drawing.Point(98, 80);
             this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(71, 12);
+            this.label21.Size = new System.Drawing.Size(53, 12);
             this.label21.TabIndex = 14;
-            this.label21.Text = "PNPDeviceID";
+            this.label21.Text = "COM Name";
             // 
             // labWidgetCount
             // 
@@ -717,7 +717,7 @@ namespace PCMonitor.UI
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.NumericUpDown numScreenprotectInterval;
-        private System.Windows.Forms.Label labPNPDeviceId;
+        private System.Windows.Forms.Label labComName;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.Label labDeviceStatus;
         private System.Windows.Forms.Label label18;

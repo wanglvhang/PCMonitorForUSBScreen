@@ -20,7 +20,7 @@ namespace PCMonitor
 
         public IList<WidgetBase> Widges { get; private set; }
 
-        public ThemeConfig Config { get; private set; }
+        public ThemeConfig ThemeConfig { get; private set; }
 
         public IMonitorDataProvider MonitorDataProvider { get; private set; }
 
@@ -29,8 +29,10 @@ namespace PCMonitor
             this.BGImage = bgimg;
             this.USBScreen = render;
             this.Widges = new List<WidgetBase>();
-            this.Config = themeConfig;
+            this.ThemeConfig = themeConfig;
             this.MonitorDataProvider = dataProvider;
+            //构建 widges
+            this.buildWidges();
         }
 
 
@@ -72,7 +74,7 @@ namespace PCMonitor
 
             //执行完屏保后
             //1.重新绘制背景图
-            this.USBScreen.RenderBitmap(BGImage, 0, 0);
+            this.DrawBackground();
 
             //2.重置所有widgets
             foreach (var w in this.Widges)
@@ -83,14 +85,14 @@ namespace PCMonitor
         }
 
 
-        public void Prepare()
+        public void DrawBackground()
         {
+            //若无背景图片则不绘制
+            if(this.BGImage != null)
+            {
+                USBScreen.RenderBitmap(BGImage, 0, 0);
+            }
 
-            //USBScreen.Startup();
-
-            USBScreen.RenderBitmap(BGImage, 0, 0);
-
-            this.build();
         }
 
         public void Refresh()
@@ -109,7 +111,7 @@ namespace PCMonitor
                 vs.SaveImage();
             }
 
-            Thread.Sleep(50);
+            Thread.Sleep(30);
 
         }
 
@@ -206,9 +208,9 @@ namespace PCMonitor
             }
         }
 
-        private void build()
+        private void buildWidges()
         {
-            foreach (var wc in this.Config.Widgets)
+            foreach (var wc in this.ThemeConfig.Widgets)
             {
                 var frontColor = wc.FrontColor.ToColor();
                 var bgColor = wc.BackgroundColor.ToColor();
@@ -237,12 +239,17 @@ namespace PCMonitor
                         wc.TextLineAlignment
                         ));
                 }
-                else if(wc.Type == eWidgetType.PercentBar)
+                else if (wc.Type == eWidgetType.PercentBar)
                 {
                     this.Widges.Add(new PercentBar(wc.Data,
                          new Rectangle(wc.X, wc.Y, wc.Width, wc.Height),
                          frontColor == null ? Color.Red : frontColor.Value,
                          wc.BackgroundColor.ToColor().Value));
+                }
+                else if (wc.Type == eWidgetType.TGUSControl)
+                {
+                    //主要数据为  data;address
+                    this.Widges.Add( new TGUSControl() { } );
                 }
 
             }

@@ -17,6 +17,10 @@ namespace USBScreen
 
         public eScreenStatus Status => throw new NotImplementedException();
 
+        public string PNPDeviceID => throw new NotImplementedException();
+
+        public string COMName => throw new NotImplementedException();
+
         private Bitmap canvas;
         private Graphics graphics;
         public VirtualScreen()
@@ -99,5 +103,11 @@ namespace USBScreen
         {
             throw new NotImplementedException();
         }
+
+        public void SendCMD(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

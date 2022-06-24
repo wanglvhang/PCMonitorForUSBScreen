@@ -15,6 +15,12 @@ namespace PCMonitor
 
         public int height { get; set; }
 
+        public string comName { get; set; }
+
+        public int baudRate { get; set; }
+
+        public bool isDataOnly { get; set; } = false; //是否值输出数据到串口，对于这种设备则不进行屏保调用，无论设置如何
+
         public List<WidgetConfig> Widgets { get; set; }
 
     }
@@ -54,6 +60,9 @@ namespace PCMonitor
 
         //垂直位置 Near  Center Far
         public StringAlignment TextLineAlignment { get; set; }
+
+        //专门为tgus 添加的配置
+        public string Address { get; set; } //16进制变量地址
 
 
 

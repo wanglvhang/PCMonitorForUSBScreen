@@ -1,0 +1,17 @@
+{
+  "device": "tgus",
+  "width": 480,
+  "height": 480,
+  "comName": "COM4",
+  "baudRate": 115200,
+  "isDataOnly": true,
+
+  "widgets": [
+    {
+      "type": "TGUSControl",
+      "data": "cpu_load",
+      "address": "FFFF"
+    }
+
+  ]
+}

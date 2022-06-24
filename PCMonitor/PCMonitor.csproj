@@ -88,6 +88,7 @@
     <Compile Include="Widgets\Oscillogram.cs" />
     <Compile Include="Widgets\PercentBar.cs" />
     <Compile Include="Widgets\TextLabel.cs" />
+    <Compile Include="Widgets\TGUSControl.cs" />
     <Compile Include="Widgets\WidgetBase.cs" />
   </ItemGroup>
   <ItemGroup>

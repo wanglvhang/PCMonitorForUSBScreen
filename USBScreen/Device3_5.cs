@@ -17,9 +17,9 @@ namespace USBScreen
     {
         public string COMName { get; private set; }
 
-        public const string PNPDeviceID = "USB35INCHIPSV2";
+        public string PNPDeviceID  { get; private set; } = "USB35INCHIPSV2";
 
-        //public const string PNPDeviceID = "XXXXXXXXXX";
+
 
         public SerialPort SerialPort { get; private set; }
 
@@ -40,8 +40,13 @@ namespace USBScreen
         }
 
 
+        //参数只支持  480 320 或 320 480
+        //添加 pnpdeviceid 参数，用于读取主题配置中的 pnpdeviceid 定义
         public static Device3_5 GetInstance(int width, int height)
         {
+            //TODO 检查参数
+
+
             if (instance == null) instance = new Device3_5(width,height);
             return instance;
         }
@@ -58,7 +63,7 @@ namespace USBScreen
                     {
                         var mos = searcher.Get();
                         //查找 PNPDeviceID 包含 USB35INCHIPSV2 的对象
-                        var obj = mos.Cast<ManagementObject>().Where(mo => mo.Properties.Cast<PropertyData>().Any(pd => pd.Name == "PNPDeviceID" && pd.Value.ToString().Contains(PNPDeviceID))).FirstOrDefault();
+                        var obj = mos.Cast<ManagementObject>().Where(mo => mo.Properties.Cast<PropertyData>().Any(pd => pd.Name == "PNPDeviceID" && pd.Value.ToString().Contains(this.PNPDeviceID))).FirstOrDefault();
 
                         if (obj == null)
                         {
@@ -79,6 +84,9 @@ namespace USBScreen
                                 Parity = Parity.None
                             };
 
+                            //尝试打开
+                            this.SerialPort.Open(); //打开不成功视为连接不成功
+
                             this.Status = eScreenStatus.Connected;
 
                         }
@@ -97,7 +105,6 @@ namespace USBScreen
         {
             if (this.SerialPort != null)
             {
-                this.Shutdown();
                 this.SerialPort.Close();
                 this.SerialPort.Dispose();
             }
@@ -394,13 +401,21 @@ namespace USBScreen
 
         private void writeToSerialPort(byte[] bytes)
         {
-            if (string.IsNullOrWhiteSpace(this.COMName)) { throw new Exception("尚未连接或未找到设备。"); }
+            if (this.Status == eScreenStatus.Connected)
+            {
 
-            //发送数据
-            if (!this.SerialPort.IsOpen) this.SerialPort.Open();
+                //发送数据
+                if (!this.SerialPort.IsOpen) this.SerialPort.Open();
 
-            this.SerialPort.Write(bytes, 0, bytes.Length);
+                this.SerialPort.Write(bytes, 0, bytes.Length);
 
+            }
+
+        }
+
+        public void SendCMD(byte[] data)
+        {
+            throw new NotImplementedException();
         }
 
         //public void AjustScreen(bool isMirror, bool isLandscape, bool isInvert)

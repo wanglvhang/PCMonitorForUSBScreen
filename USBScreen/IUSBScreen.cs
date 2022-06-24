@@ -17,9 +17,11 @@ namespace USBScreen
 
         eScreenStatus Status { get; }
 
+        string COMName { get; }
+
         //屏幕常规操作
 
-        //连接
+        //连接, 该方法需要在生成serialport实例后 调用open方法来测试连接是否成功
         void Connect();
 
         //启动/打开
@@ -55,6 +57,8 @@ namespace USBScreen
         void RenderPixels(Color pixelColor, IEnumerable<Point> points);
 
         void RenderBitmap(Bitmap img, int posX, int posY);
+
+        void SendCMD(byte[] data);
 
 
         //绘制圆弧

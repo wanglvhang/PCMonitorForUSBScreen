@@ -41,10 +41,10 @@ namespace PCMonitor
             {
                 return Device3_5.GetInstance(this.themeConfig.width, this.themeConfig.height);
             }
-            else if (device == eScreenDevice.sun35)
+            else if (device == eScreenDevice.tgus)
             {
-                //return SunScreen3_5
-                return null;
+                return TGUScreen.GetInstance(this.themeConfig.width,this.themeConfig.height,
+                    this.themeConfig.comName,this.themeConfig.baudRate);
             }
             else
             {
@@ -60,13 +60,22 @@ namespace PCMonitor
             this.themeConfig = themeCon;
             this.screenDevice = themeCon.device.toEnum<eScreenDevice>();
             this.lastRunScreenProtectTime = DateTime.Now;
+
+            this.initialScreenRender();
+
         }
 
         //包括初始化 monitor
-        public void PrepareForRun()
+        private void initialScreenRender ()
         {
             //read theme config
-            var bg_img = new Bitmap($"{themePath}\\bg.png");
+            var bg_path = $"{themePath}\\bg.png";
+            Bitmap bg_img = null; //若bg.png不存在则 bg_img为空
+            if (File.Exists(bg_path))
+            {
+                bg_img = new Bitmap(bg_path);
+            }
+
 
             var start_date = Convert.ToDateTime(this.appConfig.StartDate);
 
@@ -74,23 +83,20 @@ namespace PCMonitor
 
             this.ScreenRender = new ScreenRender(bg_img, USBScreen, mdp, this.themeConfig);
 
-            this.ScreenRender.Prepare();
-
         }
-
 
 
         public void Run(Action<int, double> uiCallback, RenderStopSignal signal)
         {
 
-            var count = 1;
-            //检查屏保图片显示
+            var count = 1;//绘制计数器
 
+            //检查屏保图片显示
             while (true && !signal.Stop)
             {
                 //判断是否需要执行屏保
                 var time_since_last_screenprotect = DateTime.Now - lastRunScreenProtectTime;
-                if(this.appConfig.ScreenProtect && time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval * 60)
+                if(this.appConfig.ScreenProtect && !this.themeConfig.isDataOnly  &&  time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval * 60)
                 {
                     //run screen protect
                     this.ScreenRender.ScreenProtect();
@@ -117,7 +123,7 @@ namespace PCMonitor
 
         public void Dispose()
         {
-            this.USBScreen.Shutdown();
+            this.USBScreen.Dispose();
         }
 
 
@@ -134,7 +140,7 @@ namespace PCMonitor
     public enum eScreenDevice
     {
         inch35,
-        sun35,
+        tgus, //冠显tgus屏幕，该适配只传输数据到串口屏幕
     }
 
 }

@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using USBScreen;
 
 namespace PCMonitor.UI
 {
@@ -158,6 +159,7 @@ namespace PCMonitor.UI
 
         private void initial_theme_and_renderlauncher(string theme_name)
         {
+            this.cmbThemes.Enabled = false;
 
             if (this.renderLauncher != null)
             {
@@ -174,16 +176,17 @@ namespace PCMonitor.UI
 
             this.labDevice.Text = this.themeConfig.device;
             this.labWidgetCount.Text = this.themeConfig.Widgets.Count.ToString();
-
-
-            //设置pnpdeviceid?
-            this.labPNPDeviceId.Text = "???";
-
-            //设备状态
-
-
             //宽度 高度
             this.labScreenWH.Text = $"W{this.themeConfig.width}xH{this.themeConfig.height}";
+
+
+            this.labDeviceStatus.ForeColor = Color.Gray;
+            //设置com name
+            this.labComName.Text = "loading...";
+            //设备状态
+            this.labDeviceStatus.Text = "loading..."; //重置状态，后续连接后会更新状态
+
+
 
             this.renderLauncher = new RenderLauncher(this.appConfig, this.themeFolder_path, this.themeConfig);
 
@@ -191,14 +194,17 @@ namespace PCMonitor.UI
             try
             {
                 this.renderLauncher.USBScreen.Connect();
+                //连接后设置状态
                 this.labDeviceStatus.Text = this.renderLauncher.USBScreen.Status.ToString();
+                //设置com name
+                this.labComName.Text = this.renderLauncher.USBScreen.COMName;
 
                 //根据状态 设置文字颜色
-                if (this.renderLauncher.USBScreen.Status == USBScreen.eScreenStatus.Connected)
+                if (this.renderLauncher.USBScreen.Status == eScreenStatus.Connected)
                 {
                     this.labDeviceStatus.ForeColor = Color.Green;
                 }
-                else if (this.renderLauncher.USBScreen.Status == USBScreen.eScreenStatus.Error)
+                else if (this.renderLauncher.USBScreen.Status == eScreenStatus.Error)
                 {
                     this.labDeviceStatus.ForeColor = Color.Red;
                 }
@@ -207,11 +213,11 @@ namespace PCMonitor.UI
                     this.labDeviceStatus.ForeColor = Color.Orange;
                 }
 
+                this.updateScreenOperateBtns(false);
 
-                if (this.renderLauncher.USBScreen.Status == USBScreen.eScreenStatus.Connected)
+                if (this.renderLauncher.USBScreen.Status == eScreenStatus.Connected)
                 {
                     this.renderLauncher.USBScreen.Startup();
-                    this.renderLauncher.PrepareForRun();
                     this.btnStart.Enabled = true;
                 }
                 else
@@ -223,6 +229,10 @@ namespace PCMonitor.UI
             catch(Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                this.cmbThemes.Enabled = true;
             }
 
         }
@@ -320,6 +330,9 @@ namespace PCMonitor.UI
 
             this.btnStart.Enabled = false;
             this.btnStop.Enabled = true;
+
+            //每次绘制之前，重新绘制背景图片
+            this.renderLauncher.ScreenRender.DrawBackground();
 
             this.signal.Stop = false;
 
@@ -600,6 +613,7 @@ namespace PCMonitor.UI
         public int Count { get; set; }
 
         public double MS { get; set; }
+
     }
 
 

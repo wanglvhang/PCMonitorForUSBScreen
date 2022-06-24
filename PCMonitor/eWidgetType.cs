@@ -11,7 +11,8 @@ namespace PCMonitor
         Oscillogram,
         PercentBar,
         ArchBar,
-        TextLabel
+        TextLabel,
+        TGUSControl
     }
 
 }
