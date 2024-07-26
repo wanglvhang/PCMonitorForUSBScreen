@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using USBScreen;
 using Action = System.Action;
 using Task = System.Threading.Tasks.Task;
+using System.Diagnostics;
 
 namespace PCMonitor
 {
@@ -18,17 +18,14 @@ namespace PCMonitor
     /// </summary>
     public class RenderLauncher : IDisposable
     {
-
         public ScreenRenderer ScreenRenderer { get; private set; }
-
-        public IUSBScreen Screen { get; private set; }
-        public USBScreenMetaAttribute ScreenMeta { get; private set; }
+        public IScreen Screen { get; private set; }
+        public ScreenMetaAttribute ScreenMeta { get; private set; }
 
 
         private AppConfig appConfig;
         private ThemePackage themePackage;
         private DateTime lastRunScreenProtectTime;
-
 
 
         public RenderLauncher(AppConfig appCon, ThemePackage themePackage)
@@ -38,94 +35,67 @@ namespace PCMonitor
             this.lastRunScreenProtectTime = DateTime.Now;//屏保运行时间记录
 
             //初始化usbscreen
-            this.initialUSBScreen();
+            this.initialScreen();
 
             this.initialScreenRender();
 
         }
 
 
-        private void initialUSBScreen()
+        private void initialScreen()
         {
-            //使用反射
-            var screen_assembly = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.StartsWith("USBScreen")).FirstOrDefault();
-
-            var screen_types = screen_assembly.GetTypes().Where(t => typeof(IUSBScreen).IsAssignableFrom(t) && !t.IsInterface).ToList();
-
-            foreach (var t in screen_types)
-            {
-                var attr = t.GetCustomAttributes(typeof(USBScreenMetaAttribute), false).FirstOrDefault();
-
-                if (attr != null)
-                {
-                    var meta_attr = attr as USBScreenMetaAttribute;
-
-                    if (meta_attr.DeviceName.ToLower() == this.themePackage.Config.device.ToLower())
-                    {
-                        //初始化类型
-                        this.ScreenMeta = meta_attr;
-                        this.Screen = Activator.CreateInstance(t) as IUSBScreen;
-
-                        this.Screen.SetRenderResolution(themePackage.Config.width, themePackage.Config.height);
-                        //TODO: 检查分辨率是否OK
-                    }
-                }
-            }
-
-            //建设themeconfig中device设置是否正确
-            if (this.Screen == null || this.ScreenMeta == null)
-            {
-                throw new Exception("无法找到主题指定的设备，请检查主题配置中device设置是否正确。");
-            }
+            (this.Screen, this.ScreenMeta) = ScreenLoader.Load(this.themePackage.Config,appConfig);
 
         }
         //包括初始化 monitor
         private void initialScreenRender ()
         {
 
-            var start_date = Convert.ToDateTime(this.appConfig.StartDate);
-
-            var mdp = new MonitorDataProvider(start_date, this.appConfig.CPUFanIndex, this.appConfig.MainboardIndex, this.appConfig.NetworkInterface);
+            var mdp = DataProviderLoader.Load(this.appConfig);
 
             this.ScreenRenderer = new ScreenRenderer(this.Screen,this.themePackage, mdp);
 
         }
-
 
         public void Run(Action<int, double> uiCallback, RenderStopSignal signal)
         {
 
             var count = 1;//绘制计数器
 
+            var stopwatch = new Stopwatch();
+
             //检查屏保图片显示
             while (true && !signal.Stop)
             {
+                stopwatch.Reset();
+                stopwatch.Start();
                 //判断是否需要执行屏保
                 var time_since_last_screenprotect = DateTime.Now - lastRunScreenProtectTime;
-                if(this.appConfig.ScreenProtect && !this.themePackage.Config.isDataOnly  &&  time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval * 60)
+                if(this.appConfig.ScreenProtect && !this.themePackage.Config.isDataOnly  
+                    &&  time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval * 60)
                 {
                     //run screen protect
                     this.ScreenRenderer.ScreenProtect();
                     lastRunScreenProtectTime = DateTime.Now;
                 }
 
-                var now = DateTime.Now;
                 this.ScreenRenderer.RenderFrame();
-                var span = DateTime.Now - now;
-                uiCallback(count, span.TotalMilliseconds);
+
+                stopwatch.Stop();
+                var frame_time = stopwatch.ElapsedMilliseconds;
+                
+                uiCallback(count, frame_time);
 
                 count++;
-                span = DateTime.Now - now;
                 //if render time is lower then interval, sleep
-                if (span.TotalMilliseconds < this.appConfig.FrameTime)
+                if (frame_time < this.appConfig.FrameTime)
                 {
-                    Thread.Sleep(this.appConfig.FrameTime - (int)span.TotalMilliseconds);
+                    Thread.Sleep(this.appConfig.FrameTime - (int)frame_time);
                 }
 
             }
 
         }
-
 
         public void Dispose()
         {

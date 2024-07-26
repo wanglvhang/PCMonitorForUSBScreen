@@ -1,5 +1,4 @@
-﻿using USBScreen;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -61,7 +60,7 @@ namespace PCMonitor.Widgets
 
 
         //frameRender会将widget对应area的bitmap作为canvas传输给widget的render方法，防止原始的背景bitmap被修改
-        public override void Render(IUSBScreen screen, Bitmap widget_canvas, DataForRender data)
+        public override void Render(IScreen screen, Bitmap widget_canvas, DataForRender data)
         {
 
             //如果是首次绘制或数据已满时，刷新背景进行重置

@@ -7,16 +7,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using PCMonitor.Widgets;
-using USBScreen;
 
 namespace PCMonitor
 {
     public class ScreenRenderer:IDisposable
     {
-        /// <summary>
-        /// 职责：
-        /// </summary>
-        public IUSBScreen USBScreen { get; private set; }
+
+        public IScreen Screen { get; private set; }
 
         public IMonitorDataProvider MonitorDataProvider { get; private set; }
 
@@ -31,15 +28,16 @@ namespace PCMonitor
         public IList<WidgetBase> Widges { get; private set; }
 
 
-        public ScreenRenderer(IUSBScreen render, ThemePackage themePackage, IMonitorDataProvider dataProvider)
+
+        public ScreenRenderer(IScreen render, ThemePackage themePackage, IMonitorDataProvider dataProvider)
         {
             this.Widges = new List<WidgetBase>();
-            this.USBScreen = render;
+            this.Screen = render;
             this.ThemePackage = themePackage;
             if(this.ThemePackage.Background != null)
             {
-                this.RawBGImage = this.ThemePackage.Background.CreateCopy();
-                this.PreviousFrame = this.RawBGImage.CreateCopy();
+                this.RawBGImage = this.ThemePackage.Background.CreateCopyToRGB565();
+                this.PreviousFrame = this.RawBGImage.CreateCopyToRGB565();
             }
 
             this.MonitorDataProvider = dataProvider;
@@ -55,18 +53,18 @@ namespace PCMonitor
         {
             if (sp_img != null)
             {
-                if (sp_img.Width > USBScreen.RenderWidth || sp_img.Height > USBScreen.RenderHeight)
+                if (sp_img.Width > Screen.RenderWidth || sp_img.Height > Screen.RenderHeight)
                 {
                     throw new Exception("screen protect image size is bigger then screen");
                 }
 
-                this.USBScreen.RenderBitmap(sp_img, 0, 0);
+                this.Screen.RenderBitmap(sp_img, 0, 0);
             }
             else
             {
-                var r_img = new Bitmap(USBScreen.RenderWidth, USBScreen.RenderHeight);
-                var g_img = new Bitmap(USBScreen.RenderWidth, USBScreen.RenderHeight);
-                var b_img = new Bitmap(USBScreen.RenderWidth, USBScreen.RenderHeight);
+                var r_img = new Bitmap(Screen.RenderWidth, Screen.RenderHeight);
+                var g_img = new Bitmap(Screen.RenderWidth, Screen.RenderHeight);
+                var b_img = new Bitmap(Screen.RenderWidth, Screen.RenderHeight);
 
                 using (var g = Graphics.FromImage(r_img))
                 {
@@ -81,9 +79,9 @@ namespace PCMonitor
                     g.Clear(Color.Blue);
                 }
 
-                this.USBScreen.RenderBitmap(r_img, 0, 0);
-                this.USBScreen.RenderBitmap(g_img, 0, 0);
-                this.USBScreen.RenderBitmap(b_img, 0, 0);
+                this.Screen.RenderBitmap(r_img, 0, 0);
+                this.Screen.RenderBitmap(g_img, 0, 0);
+                this.Screen.RenderBitmap(b_img, 0, 0);
 
             }
 
@@ -92,10 +90,7 @@ namespace PCMonitor
             this.DrawBackground();
 
             //2.重置所有widgets
-            foreach (var w in this.Widges)
-            {
-                w.Reset();
-            }
+            this.ResetAllWidges();
 
         }
 
@@ -104,7 +99,7 @@ namespace PCMonitor
             //若无背景图片则不绘制
             if(this.RawBGImage != null)
             {
-                USBScreen.RenderBitmap(RawBGImage, 0, 0);
+                Screen.RenderBitmap(RawBGImage, 0, 0);
             }
 
         }
@@ -116,23 +111,25 @@ namespace PCMonitor
             foreach (var w in Widges)
             {
                 var data = getDataForWidget(w.DataType);
-                w.Render(this.USBScreen, copyWidgetBG(w), data);//渲染时包含数据的获取操作，可能导致数据的不同步 ！应该先获取全部所需数据，并对所有widges进行更新，然后再进行逐个渲染
+                w.Render(this.Screen, copyWidgetBG(w), data);//渲染时包含数据的获取操作，可能导致数据的不同步 ！应该先获取全部所需数据，并对所有widges进行更新，然后再进行逐个渲染
 
                 //TODO: 将每个widges的绘制输出并绘制到 previousFrame上
             }
 
-            //测试用
-            if (USBScreen is VirtualScreen)
-            {
-                var vs = USBScreen as VirtualScreen;
-                vs.SaveImage();
-            }
+            this.Screen.OnFrameEnd();
 
             Thread.Sleep(20);
 
         }
 
-
+        public void ResetAllWidges()
+        {
+            //重置所有widgets
+            foreach (var w in this.Widges)
+            {
+                w.Reset();
+            }
+        }
 
 
 
@@ -150,49 +147,50 @@ namespace PCMonitor
             //{
 
             //!!!修改为不论widget 均同时返回数字与处理后的字符类型
-            float? raw_data = null;
+            //float? raw_data = null;
 
-            raw_data = this.MonitorDataProvider.GetData(dataType);
+            var rd = this.MonitorDataProvider.GetData(dataType);
 
             //若获取的数据为空，则直接返回 N/A
-            if (!raw_data.HasValue)
+            if (!rd.Num.HasValue)
             {
-                return new DataForRender(null, "N/A");
+                rd.Str = "N/A";
+                return rd;
             }
 
-            var result_str = "N/A";
+           rd.Str = "N/A";
 
             switch (dataType)
             {
                 case eMonitorDataType.CPU_Fan_Speed:
-                    result_str = Math.Ceiling(raw_data.Value).ToString();
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString();
                     break;
                 case eMonitorDataType.CPU_Hz:
-                    result_str = (raw_data.Value / 1000).ToString("f1");  //3.2GHz
+                    rd.Str = (rd.Num.Value / 1000).ToString("f1");  //3.2GHz
                     break;
                 case eMonitorDataType.CPU_Load:
-                    result_str = Math.Ceiling(raw_data.Value).ToString();
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString();
                     break;
                 case eMonitorDataType.CPU_Temp:
-                    result_str = Math.Ceiling(raw_data.Value).ToString();
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString();
                     break;
                 case eMonitorDataType.GPU_Fan_Speed:
-                    result_str = Math.Ceiling(raw_data.Value).ToString();
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString();
                     break;
                 case eMonitorDataType.GPU_Hz:
-                    result_str = Math.Ceiling(raw_data.Value).ToString(); //取整 单位为MHz
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString(); //取整 单位为MHz
                     break;
                 case eMonitorDataType.GPU_Load:
-                    result_str = Math.Ceiling(raw_data.Value).ToString();
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString();
                     break;
                 case eMonitorDataType.GPU_RAM_Load:
-                    result_str = Math.Ceiling(raw_data.Value).ToString();
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString();
                     break;
                 case eMonitorDataType.GPU_RAM_Total:
-                    result_str = Math.Ceiling(raw_data.Value).ToString(); //单位为MB
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString(); //单位为MB
                     break;
                 case eMonitorDataType.GPU_RAM_Used:
-                    result_str = Math.Ceiling(raw_data.Value).ToString(); //单位为MB
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString(); //单位为MB
                     break;
                 //case eMonitorDataType.Custom_GPU_RAM_UsedTotal:
                 //    var total_gpu_ram = this.MonitorDataProvider.GetData( eMonitorDataType.GPU_RAM_Total);
@@ -201,35 +199,40 @@ namespace PCMonitor
                 //    //200/1000
                 //    break;
                 case eMonitorDataType.GPU_Temp:
-                    result_str = Math.Ceiling(raw_data.Value).ToString();
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString();
                     break;
                 case eMonitorDataType.Total_Days:
                     //获取birthday 配置
-                    result_str = raw_data.Value.ToString("f0");
+                    rd.Str = rd.Num.Value.ToString("f0");
                     break;
                 case eMonitorDataType.Network_Download:
-                    result_str = getNetworkSpeedStr(raw_data.Value);
+                    rd.Str = getNetworkSpeedStr(rd.Num.Value);
                     break;
                 case eMonitorDataType.Network_Upload:
-                    result_str = getNetworkSpeedStr(raw_data.Value);
+                    rd.Str = getNetworkSpeedStr(rd.Num.Value);
                     break;
                 case eMonitorDataType.RAM_Free:
-                    result_str = (raw_data.Value).ToString("f1");
+                    rd.Str = (rd.Num.Value).ToString("f1");
                     break;
                 case eMonitorDataType.RAM_Load:
-                    result_str = Math.Ceiling(raw_data.Value).ToString();
+                    rd.Str = Math.Ceiling(rd.Num.Value).ToString();
                     break;
                 case eMonitorDataType.RAM_Used:
-                    result_str = (raw_data.Value).ToString("f1");
+                    rd.Str = (rd.Num.Value).ToString("f1");
                     break;
             }
 
-            return new DataForRender(raw_data, result_str);
-            //}
+            return rd;
+
         }
 
         private void buildWidges()
         {
+            if(this.ThemePackage.Config.Widgets == null)
+            {
+                this.ThemePackage.Config.Widgets = new List<WidgetConfig>();
+            }
+
             foreach (var wc in this.ThemePackage.Config.Widgets)
             {
                 var frontColor = wc.FrontColor.ToColor();
@@ -264,7 +267,15 @@ namespace PCMonitor
                 {
                     this.Widges.Add(new PercentBar(wc.Data,area,
                          frontColor == null ? Color.Red : frontColor.Value,
-                         wc.BackgroundColor.ToColor().Value));
+                         wc.BackgroundColor?.ToColor()));
+                }
+                else if(wc.Type == eWidgetType.Animation)
+                {
+                    this.Widges.Add(new Animation(wc.Data, area, wc.Animation, this.ThemePackage.Resources));
+                }
+                else if(wc.Type == eWidgetType.Arc)
+                {
+                    this.Widges.Add(new Arc(wc,area));
                 }
                 else if (wc.Type == eWidgetType.TGUSControl) //该空间未完善
                 {
@@ -273,7 +284,6 @@ namespace PCMonitor
 
             }
         }
-
 
         //只拷贝widget所需的背景图片区域
         private Bitmap copyWidgetBG(WidgetBase widget)
@@ -284,10 +294,10 @@ namespace PCMonitor
                 return null;
             }
 
-            if (widget.Area.X + widget.Area.Width > USBScreen.RenderWidth
-                || widget.Area.Y + widget.Area.Height > USBScreen.RenderHeight
-                || widget.Area.Width > USBScreen.RenderWidth
-                || widget.Area.Height > USBScreen.RenderHeight)
+            if (widget.Area.X + widget.Area.Width > Screen.RenderWidth
+                || widget.Area.Y + widget.Area.Height > Screen.RenderHeight
+                || widget.Area.Width > Screen.RenderWidth
+                || widget.Area.Height > Screen.RenderHeight)
             {
                 throw new Exception("widget渲染区域超出屏幕");
             }
@@ -313,9 +323,10 @@ namespace PCMonitor
 
         public void Dispose()
         {
-            this.USBScreen.Shutdown();
-            this.USBScreen.Dispose();
+            this.Screen.Shutdown();
+            this.Screen.Dispose();
         }
+
     }
 
 }

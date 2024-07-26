@@ -1,0 +1,18 @@
+﻿---
+device: preview
+width: 480
+height: 320
+widgets:
+- type: arc
+  data: cpu_load
+  x: 0
+  y: 0
+  width: 300
+  height: 300
+  startAngle: 100
+  sweepAngle: 270
+  arcWidth: 40
+  frontColor: bc1919
+  backgroundColor: ''
+  borderColor: '999999'
+  borderWidth: 1

@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using USBScreen;
 
 namespace PCMonitor.Widgets
 {
@@ -31,7 +30,7 @@ namespace PCMonitor.Widgets
 
 
 
-        public override void Render(IUSBScreen screen, Bitmap widget_canvas, DataForRender data)
+        public override void Render(IScreen screen, Bitmap widget_canvas, DataForRender data)
         {
             //防止重复渲染，节省性能
             if (PrevData != null && PrevData.Str == data.Str) return;

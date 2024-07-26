@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace USBScreen
+namespace PCMonitor
 {
-    public interface IUSBScreen:IDisposable
+    public interface IScreen:IDisposable
     {
 
         //屏幕实例信息
@@ -18,7 +18,9 @@ namespace USBScreen
 
         string ConnectionInfo { get; } //连接信息
 
-        void SetRenderResolution(int width, int height);
+
+        //该方法只设置屏幕的显示方式，具体设置屏幕的过程应放在Startup中
+        void SetDisplay(int width, int height, bool isInvert);
 
         //屏幕基本操作方法===============================================
         //连接
@@ -55,15 +57,19 @@ namespace USBScreen
         //渲染矩形色块
         void RenderColor(Rectangle rec, Color color);
 
+        //渲染同色像素
         void RenderPixels(Color pixelColor, IEnumerable<Point> points);
 
-        //渲染像素集合？
+        //渲染像素集合
         void RenderPixels(IEnumerable<Pixel> Pixels);
 
         //渲染图片
         void RenderBitmap(Bitmap img, int posX, int posY);
 
         void SendRaw(byte[] bytes);
+
+        //该方法会在每一帧（即每次循环所有widges渲染完毕后）渲染结束时会调用
+        void OnFrameEnd();
 
     }
 
@@ -80,12 +86,24 @@ namespace USBScreen
     public class Pixel
     {
         public Pixel(Point point, Color color) {
+            this.X = point.X;
+            this.Y = point.Y;
             Point = point;
             Color = color;
         }
 
+        public Pixel(int x, int y)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Point = new Point(X, Y);
+        }
+
+        public int X;
+
+        public int Y;
         public Point Point { get; private set; }
-        public Color Color { get; private set; }
+        public Color Color { get; set; }
     }
 
 

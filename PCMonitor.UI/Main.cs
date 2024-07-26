@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32.TaskScheduler;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OpenHardwareMonitor.Hardware;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,7 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using USBScreen;
+using PCMonitor;
 
 namespace PCMonitor.UI
 {
@@ -36,7 +35,6 @@ namespace PCMonitor.UI
         private readonly RenderStopSignal signal = new RenderStopSignal() { Stop = false };
         private string appConfig_path;
         private AppConfig appConfig;
-        //private ThemeConfig themeConfig;
         private ThemePackage themePackage;
         private string themeFolder_path;
         private Thread workThread;
@@ -52,8 +50,7 @@ namespace PCMonitor.UI
 
             //读取并显示应用配置==============================
             //初始化UI内容以及读取配置
-            var exe_path = typeof(Main).Assembly.Location;
-            this.work_dir = Path.GetDirectoryName(exe_path);
+            this.work_dir = Environment.CurrentDirectory;
             this.appConfig_path = $"{ this.work_dir}\\app.json";
             this.appConfig = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(this.appConfig_path));
 
@@ -70,16 +67,23 @@ namespace PCMonitor.UI
             }
 
             //cpu风扇
-            var fans = this.GetSuperIOFanSensors();
+            var fans = DataProviderLoader.Load(this.appConfig).GetFans();
 
-            foreach (var f in fans)
+            foreach (var fan in fans)
             {
-                this.cmbCPUFans.Items.Add(f.Name);
-                this.cmbMainboardFan.Items.Add(f.Name);
+                this.cmbCPUFans.Items.Add(fan);
+                this.cmbMainboardFan.Items.Add(fan);
             }
 
-            this.cmbCPUFans.SelectedIndex = 0;
-            this.cmbMainboardFan.SelectedIndex = 0;
+            if (fans.Count != 0)
+            {
+                this.cmbCPUFans.SelectedIndex = this.appConfig.CPUFanIndex;
+                this.cmbMainboardFan.SelectedIndex = this.appConfig.MainboardFanIndex;
+            }
+
+            //屏幕翻转
+            this.cmbScreenInvert.SelectedIndex = this.appConfig.ScreenInvert ? 1 : 0;
+
 
             //start date
             var startData = Convert.ToDateTime(this.appConfig.StartDate);
@@ -141,6 +145,7 @@ namespace PCMonitor.UI
             this.cmbFrameTime.SelectedIndexChanged += CmbFrameTime_SelectedIndexChanged;
             this.dtpStartDate.ValueChanged += DtpStartDate_ValueChanged;
             this.cmbThemes.SelectedIndexChanged += CmbThemes_SelectedIndexChanged;
+            this.cmbScreenInvert.SelectedIndexChanged += CmbScreenInvert_SelectedIndexChanged;
 
             this.ckbAutoStart.CheckedChanged += CkbAutoStart_CheckedChanged;
             this.ckbScreenProtect.CheckedChanged += CkbScreenProtect_CheckedChanged;
@@ -201,6 +206,8 @@ namespace PCMonitor.UI
             //屏幕实际的 宽度 高度
             this.labScreenWH.Text = $"W{this.renderLauncher.ScreenMeta.Width}xH{this.renderLauncher.ScreenMeta.Height}";
 
+
+
             //连接设备
             try
             {
@@ -224,7 +231,7 @@ namespace PCMonitor.UI
                     this.labDeviceStatus.ForeColor = Color.Orange;
                 }
 
-                this.updateScreenOperateBtns(false);
+                //this.updateScreenOperateBtns(false);
 
                 if (this.renderLauncher.Screen.Status == eScreenConnectionStatus.Connected)
                 {
@@ -247,7 +254,6 @@ namespace PCMonitor.UI
             }
 
         }
-
 
         private void numScreenprotectInterval_ValueChanged(object sender, EventArgs e)
         {
@@ -308,13 +314,19 @@ namespace PCMonitor.UI
 
         private void cmbMainboardFan_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.appConfig.MainboardIndex = this.cmbMainboardFan.SelectedIndex;
+            this.appConfig.MainboardFanIndex = this.cmbMainboardFan.SelectedIndex;
             saveAppConfig();
         }
 
         private void CmbNetInterfaces_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.appConfig.NetworkInterface = this.cmbNetInterfaces.SelectedItem.ToString();
+            saveAppConfig();
+        }
+
+        private void CmbScreenInvert_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.appConfig.ScreenInvert = this.cmbScreenInvert.SelectedIndex == 1;
             saveAppConfig();
         }
 
@@ -343,13 +355,17 @@ namespace PCMonitor.UI
         private void btnStart_Click(object sender, EventArgs e)
         {
             disableUI();
-            this.updateScreenOperateBtns(true);
+            //this.updateScreenOperateBtns(true);
+
+            //每次开始的时候需要重新构建 render launcher 以应用最新的appconfig
+            initial_theme_and_renderlauncher(this.appConfig.Theme);
 
             this.btnStart.Enabled = false;
             this.btnStop.Enabled = true;
 
-            //每次绘制之前，重新绘制背景图片
+            //每次绘制之前，重新绘制背景图片并重置所有widges
             this.renderLauncher.ScreenRenderer.DrawBackground();
+            this.renderLauncher.ScreenRenderer.ResetAllWidges();
 
             this.signal.Stop = false;
 
@@ -361,14 +377,14 @@ namespace PCMonitor.UI
         private void btnStop_Click(object sender, EventArgs e)
         {
             this.signal.Stop = true;
-            //等待让thread中的任务完成一次循环
+            //等待让thread中正在运行的任务完成一次循环
             Thread.Sleep(50);
 
             this.btnStop.Enabled = false;
             this.btnStart.Enabled = true;
 
             this.enableUI();
-            this.updateScreenOperateBtns(false);
+            //this.updateScreenOperateBtns(false);
 
         }
 
@@ -438,27 +454,6 @@ namespace PCMonitor.UI
 
 
 
-
-        private IEnumerable<ISensor> GetSuperIOFanSensors()
-        {
-            IEnumerable<ISensor> result = null;
-
-            var comp = new Computer();
-            comp.MainboardEnabled = true;
-            var hv = new UpdateVisitor();
-            comp.Accept(hv);
-            comp.Open();
-            var mainboard = comp.Hardware.Where(x => x.HardwareType == HardwareType.Mainboard).First();
-            mainboard.Update();
-            var superIO = mainboard.SubHardware.Where(x => x.HardwareType == HardwareType.SuperIO).First();
-            superIO.Update();
-            result = superIO.Sensors.Where(s => s.SensorType == SensorType.Fan).ToList();
-            comp.Close();
-
-            return result;
-
-        }
-
         public void ThreadProcSafePost()
         {
 
@@ -480,10 +475,11 @@ namespace PCMonitor.UI
 
         private void saveAppConfig()
         {
-            File.WriteAllText(this.appConfig_path, JsonConvert.SerializeObject(this.appConfig,
+            var config_content = JsonConvert.SerializeObject(this.appConfig,
                 Formatting.Indented,
-                new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() })
-                );
+                new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+                
+            File.WriteAllText(this.appConfig_path,config_content );
         }
 
         private void disableUI()
@@ -494,6 +490,7 @@ namespace PCMonitor.UI
             this.cmbNetInterfaces.Enabled = false;
             this.cmbThemes.Enabled = false;
             this.dtpStartDate.Enabled = false;
+            this.cmbScreenInvert.Enabled = false;
             this.ckbAutoStart.Enabled = false;
             this.ckbScreenProtect.Enabled = false;
             this.tbarBrightness.Enabled = false;
@@ -512,44 +509,47 @@ namespace PCMonitor.UI
             this.ckbAutoStart.Enabled = true;
             this.ckbScreenProtect.Enabled = true;
             this.tbarBrightness.Enabled = true;
+            this.cmbScreenInvert.Enabled = true;
             this.numScreenprotectInterval.Enabled = true;
 
-
         }
 
-        private void updateScreenOperateBtns(bool isRunning)
-        {
-            if (isRunning)
-            {
-                this.btnMirror.Enabled = false;
-                this.btnNormal.Enabled = false;
-                this.btnLandscape.Enabled = false;
-                this.btnLandscapeInvert.Enabled = false;
-                this.btnVertical.Enabled = false;
-                this.btnVerticalInvert.Enabled = false;
-            }
-            else
-            {
-                if (this.renderLauncher.Screen.Status == USBScreen.eScreenConnectionStatus.Connected)
-                {
-                    this.btnMirror.Enabled = true;
-                    this.btnNormal.Enabled = true;
-                    this.btnLandscape.Enabled = true;
-                    this.btnLandscapeInvert.Enabled = true;
-                    this.btnVertical.Enabled = true;
-                    this.btnVerticalInvert.Enabled = true;
-                }
-                else
-                {
-                    this.btnMirror.Enabled = false;
-                    this.btnNormal.Enabled = false;
-                    this.btnLandscape.Enabled = false;
-                    this.btnLandscapeInvert.Enabled = false;
-                    this.btnVertical.Enabled = false;
-                    this.btnVerticalInvert.Enabled = false;
-                }
-            }
-        }
+        //private void updateScreenOperateBtns(bool isRunning)
+        //{
+        //    if (isRunning)
+        //    {
+        //        this.btnMirror.Enabled = false;
+        //        this.btnNormal.Enabled = false;
+        //        this.btnLandscape.Enabled = false;
+        //        this.btnLandscapeInvert.Enabled = false;
+        //        this.btnVertical.Enabled = false;
+        //        this.btnVerticalInvert.Enabled = false;
+        //        this.tbarBrightness.Enabled = false;
+        //    }
+        //    else
+        //    {
+        //        if (this.renderLauncher.Screen.Status == eScreenConnectionStatus.Connected)
+        //        {
+        //            this.btnMirror.Enabled = true;
+        //            this.btnNormal.Enabled = true;
+        //            this.btnLandscape.Enabled = true;
+        //            this.btnLandscapeInvert.Enabled = true;
+        //            this.btnVertical.Enabled = true;
+        //            this.btnVerticalInvert.Enabled = true;
+        //            this.tbarBrightness.Enabled = true;
+        //        }
+        //        else
+        //        {
+        //            this.btnMirror.Enabled = false;
+        //            this.btnNormal.Enabled = false;
+        //            this.btnLandscape.Enabled = false;
+        //            this.btnLandscapeInvert.Enabled = false;
+        //            this.btnVertical.Enabled = false;
+        //            this.btnVerticalInvert.Enabled = false;
+        //            this.tbarBrightness.Enabled = false;
+        //        }
+        //    }
+        //}
 
         public void setupTaskScheduleOnLogon(bool enable)
         {
@@ -593,36 +593,6 @@ namespace PCMonitor.UI
 
 
             }
-        }
-
-        private void btnNormal_MouseClick(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void btnMirror_MouseClick(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void btnLandscape_MouseClick(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void btnLandscapeInvert_MouseClick(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void btnVertical_MouseClick(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void btnVerticalInvert_MouseClick(object sender, MouseEventArgs e)
-        {
-
         }
 
     }

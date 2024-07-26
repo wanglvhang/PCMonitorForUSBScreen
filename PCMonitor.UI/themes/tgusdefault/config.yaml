@@ -1,0 +1,12 @@
+﻿---
+device: tgus
+width: 0
+height: 0
+isDataOnly: true
+widgets:
+- type: TGUSControl
+  data: CPU_Fan_Speed
+  address: '0004'
+  valueType: str/num
+  strLength: 3
+  textAlignment: Far

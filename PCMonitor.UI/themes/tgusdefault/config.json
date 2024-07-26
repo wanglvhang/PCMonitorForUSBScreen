@@ -2,8 +2,6 @@
   "device": "tgus",
   "width": 0,
   "height": 0,
-  "comName": "COM4",
-  "baudRate": 115200,
   "isDataOnly": true,
 
   "widgets": [

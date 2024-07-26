@@ -1,0 +1,19 @@
+﻿---
+device: inch35
+width: 480
+height: 320
+widgets:
+- type: animation
+  data: cpu_load
+  x: 0
+  y: 0
+  width: 240
+  height: 160
+  frontColor: bc1919
+  backgroundColor: ''
+  borderColor: '999999'
+  borderWidth: 1
+  animation: 
+  - minVal: 0
+    maxVal: 20
+    gifName: bbb.gif

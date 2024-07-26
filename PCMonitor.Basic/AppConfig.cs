@@ -12,7 +12,9 @@ namespace PCMonitor
 
         public int CPUFanIndex { get; set; }
 
-        public int MainboardIndex { get; set; }
+        public int MainboardFanIndex { get; set; }
+
+        public bool ScreenInvert { get; set; }
 
         public string StartDate { get; set; }
 

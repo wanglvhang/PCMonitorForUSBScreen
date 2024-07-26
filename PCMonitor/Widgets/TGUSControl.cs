@@ -4,10 +4,12 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using USBScreen;
 
 namespace PCMonitor.Widgets
 {
+    /// <summary>
+    /// 暂时废弃，后续若有屏幕设备需要纯数据的渲染方式，再启用
+    /// </summary>
     internal class TGUSControl : WidgetBase
     {
 
@@ -23,7 +25,7 @@ namespace PCMonitor.Widgets
             this._strAligment = strAligment;
         }
 
-        public override void Render(IUSBScreen screen, Bitmap widget_canvas, DataForRender data)
+        public override void Render(IScreen screen, Bitmap widget_canvas, DataForRender data)
         {
             //数据类型  整数/浮点数/
 
@@ -108,5 +110,9 @@ namespace PCMonitor.Widgets
             
         }
 
+        public override void Reset()
+        {
+            
+        }
     }
 }

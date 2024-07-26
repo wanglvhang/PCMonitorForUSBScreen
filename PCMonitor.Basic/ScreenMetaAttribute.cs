@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace USBScreen
+namespace PCMonitor
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class USBScreenMetaAttribute : Attribute
+    public class ScreenMetaAttribute : Attribute
     {
         public string DeviceName { get; set; }
 
@@ -15,10 +15,12 @@ namespace USBScreen
 
         public int Height { get;set; }
 
-        //是否可以低像素渲染
-        
-        //是否可旋转屏幕
+        public bool IsQuarterRenderSupport { get; set; } = false;
 
-        //是否可镜像
+        //是否可以低像素渲染?
+
+        //是否可旋转屏幕?
+
+        //是否可镜像?
     }
 }

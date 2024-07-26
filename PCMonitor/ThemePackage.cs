@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
+using Newtonsoft.Json;
 
 namespace PCMonitor
 {
@@ -28,23 +29,38 @@ namespace PCMonitor
             {
                 var tpackage = new ThemePackage();
 
-                var folder_name = Path.GetDirectoryName(theme_folder);
+                var di = new DirectoryInfo(theme_folder);
+                tpackage.ThemeName = di.Name;
 
-                var theme_yaml_path = $"{theme_folder}\\config.yaml";
-                var bg_path = $"{theme_folder}\\bg.png";
+                var all_files = Directory.GetFiles(theme_folder);
 
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(CamelCaseNamingConvention.Instance)// see height_in_inches in sample yml 
-                    .Build();
-
-                var theme_config = deserializer.Deserialize<ThemeConfig>(File.ReadAllText(theme_yaml_path));
-
-                tpackage.ThemeName = folder_name;
-                tpackage.Config = theme_config;
-
-                if (File.Exists(bg_path))
+                foreach (var file in all_files)
                 {
-                    tpackage.Background = new Bitmap(bg_path);
+                    var fi = new FileInfo(file);
+
+                    if (fi.Name == "config.yaml")
+                    {
+                        var deserializer = new DeserializerBuilder()
+                                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                                .Build();
+
+                        var theme_config = deserializer.Deserialize<ThemeConfig>(File.ReadAllText(fi.FullName));
+                        tpackage.Config = theme_config;
+
+                        //var theme_config = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_yaml_path));
+                    }
+                    else if (fi.Name == "bg.png")
+                    {
+                        //读取图片到内存，释放对文件资源的占用
+                        //var bg_bytes = File.ReadAllBytes(fi.FullName);
+                        var bg_stream = new MemoryStream(File.ReadAllBytes(fi.FullName));
+                        tpackage.Background = new Bitmap(bg_stream,false);
+                    }
+                    else
+                    {
+                        tpackage.Resources.Add(fi.Name, File.ReadAllBytes(fi.FullName));
+                    }
+
                 }
 
                 return tpackage;
@@ -56,36 +72,46 @@ namespace PCMonitor
 
         }
 
+        public static ThemePackage New()
+        {
+            var result = new ThemePackage();
+
+            return result;
+        }
+
 
 
         private ThemePackage()
         {
             this.Config = new ThemeConfig();
-
-
+            this.Resources = new Dictionary<string, byte[]>();
         }
 
 
-        public string ThemeName { get; private set; }
+        public string ThemeName { get;  set; }
 
-        
-        //all files
-
+        //public string ThemeFolder { get; private set; }
 
         //themeconfig
         public ThemeConfig Config { get; private set; }
 
-
         //background
-        public Bitmap Background { get; private set; }
+        public Bitmap Background { get; set; }
 
+        //resouce, theme中 除 config.yaml 和 bg.png 之外的所有文件
+        public Dictionary<string, byte[]> Resources { get; private set; }
 
-        //gifs
     }
 
 
     public class ThemeConfig
     {
+
+        public ThemeConfig()
+        {
+            this.Widgets = new List<WidgetConfig>();
+        }
+
         public string device { get; set; }
 
         public int width { get; set; }
@@ -134,14 +160,14 @@ namespace PCMonitor
         //垂直位置 Near  Center Far
         public StringAlignment TextLineAlignment { get; set; }
 
+
         //arc所需参数============================================
         //开始角度
-
-        //结束角度
-
+        public float StartAngle { get; set; }
+        //扫过角度
+        public float SweepAngle { get; set; }
         //内径
-
-        //外径
+        public int ArcWidth { get; set; }
 
 
         //专门为tgus 添加的配置========================================
@@ -150,8 +176,26 @@ namespace PCMonitor
         public int StrLength { get; set; } //字符串长度
 
 
+        public AnimationStage[] Animation { get; set; }
+
+
 
     }
+
+    public class AnimationStage
+    {
+        //public string Name { get; set; } //为添加过渡动画，所以需要name来确定 过渡动画
+
+        public float MinVal { get; set; }
+
+        public float MaxVal { get; set; }
+
+        public string GifName { get; set; }
+
+    }
+
+
+    //Transition 动画widget stage 过渡动画配置  
 
 
 }

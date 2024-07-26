@@ -5,7 +5,6 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using USBScreen;
 
 namespace PCMonitor.Widgets
 {
@@ -15,7 +14,7 @@ namespace PCMonitor.Widgets
         private int preDataDimensionValue;
 
         //
-        public PercentBar(eMonitorDataType dataType, Rectangle area, Color frontColor, Color bgColor)
+        public PercentBar(eMonitorDataType dataType, Rectangle area, Color frontColor, Color? bgColor)
         {
             //宽高取长的作为数据显示
             this.DataType = dataType;
@@ -26,7 +25,7 @@ namespace PCMonitor.Widgets
 
 
         //所需的数据为0~100的浮点数
-        public override void Render(IUSBScreen screen, Bitmap widget_canvas, DataForRender data)
+        public override void Render(IScreen screen, Bitmap widget_canvas, DataForRender data)
         {
             if (!data.Num.HasValue) return;
 

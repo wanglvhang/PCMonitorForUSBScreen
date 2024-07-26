@@ -20,7 +20,6 @@ namespace PCMonitor
         GPU_RAM_Total,
         GPU_RAM_Used,
         GPU_RAM_Load,
-
         GPU_Fan_Speed,
 
         RAM_Used,
@@ -34,6 +33,10 @@ namespace PCMonitor
         Network_Download,
 
         Total_Days,
+
+        Customize,
+
+        Static,
 
     }
 

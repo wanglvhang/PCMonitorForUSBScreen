@@ -10,9 +10,10 @@ namespace PCMonitor
     {
         Oscillogram,
         PercentBar,
-        ArchBar,
+        Arc,
         TextLabel,
-        TGUSControl
+        TGUSControl,
+        Animation,
     }
 
 }

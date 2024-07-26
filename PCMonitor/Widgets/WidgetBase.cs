@@ -1,5 +1,4 @@
-﻿using USBScreen;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -15,40 +14,30 @@ namespace PCMonitor
 
         public DataForRender PrevData { get; protected set; }
 
-        public bool IsOneTimeOnly { get; protected set; }
+        public Bitmap PrevFrame { get; protected set; }
+
+        //public bool IsOneTimeOnly { get; protected set; } 可以用 IsStatic 来替换
 
         public bool IsRendered { get; protected set; }
 
         public Rectangle Area { get; protected set; }
 
+        //前景色
         public Color FrontColor { get; protected set; }
 
+        //背景色
         public Color? BackgroundColor { get; protected set; }
 
-        public int UpdateInterval { get; set; }
+        //public int UpdateInterval { get; set; }
 
         public DateTime LastUpdatedTime { get; protected set; }
 
-        public abstract void Render(IUSBScreen screen, Bitmap widget_canvas, DataForRender data);
+        public abstract void Render(IScreen screen, Bitmap widget_canvas, DataForRender data);
 
-        public virtual void Reset()
-        {
-            //do nothing by default
-        }
+        public abstract void Reset();
 
     }
 
-    public class DataForRender
-    {
-        public DataForRender(float? num, string str)
-        {
-            this.Num = num;
-            this.Str = str;
-        }
 
-        public float? Num { get; set; }
-
-        public string Str { get; set; }
-    }
 
 }

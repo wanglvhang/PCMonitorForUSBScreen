@@ -1,10 +1,13 @@
 ﻿{
-  "networkInterface": "本地以太网",
-  "cpuFanIndex": 0,
+  "networkInterface": "以太网 2",
+  "cpuFanIndex": 2,
+  "mainboardFanIndex": 2,
+  "screenInvert": true,
   "startDate": "1990/12/12",
   "frameTime": 1000,
-  "theme": "default",
+  "theme": "libre",
   "screenProtect": true,
-  "ScreenProtectInterval": 120,
-  "screenBrightness": 43
+  "screenProtectInterval": 120,
+  "screenBrightness": 43,
+  "dataProviderName": "LibreHardwareMonitor"
 }

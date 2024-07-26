@@ -4,18 +4,20 @@ using System.Management;
 using System.Linq;
 using System.Threading;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using PCMonitor;
+using System.Drawing.Imaging;
+using System.Diagnostics;
 
-namespace USBScreen
+namespace PCMonitor.Basic.ScreenDevices
 {
 
     //the device for this class is https://item.taobao.com/item.htm?spm=a1z09.2.0.0.1fe82e8dugX098&id=638243141111&_u=jcj8c444ae
     //the PNPDeviceID for this device is USB35INCHIPSV2
     //DeviceName 是程序内部对设备的命名，在theme config 中指定
-    [USBScreenMeta(DeviceName = "inch35", Width = 480, Height = 320)]
-    public class Device3_5 : IUSBScreen
+    [ScreenMeta(DeviceName = "inch35", Width = 480, Height = 320)]
+    public class Device3_5 : IScreen
     {
 
         public string ConnectionInfo { get; private set; }
@@ -36,10 +38,11 @@ namespace USBScreen
         }
 
 
-        public void SetRenderResolution(int width, int height)
+        public void SetDisplay(int width, int height, bool isInvert)
         {
             this.RenderWidth = width;
             this.RenderHeight = height;
+            this.isInvert = isInvert;
         }
 
 
@@ -115,8 +118,19 @@ namespace USBScreen
         {
             sendCMD(109, 0, 0, 0, 0);
 
-            //设置默认的显示方式
-            //this.AjustScreen(false, true, true);
+            //根据render 宽高设置凭据显示
+            var isLandscape = false;
+            
+            if(this.RenderWidth >= this.RenderHeight)
+            {
+                isLandscape = true;
+            }
+            else
+            {
+                isLandscape = false;
+            }
+
+            this.ajustScreen(isLandscape, this.isInvert);
         }
 
         //重启
@@ -275,9 +289,12 @@ namespace USBScreen
 
         }
 
-        public void RenderPixels(IEnumerable<Pixel> Pixels)
+        public void RenderPixels(IEnumerable<Pixel> pixels)
         {
-            throw new NotImplementedException();
+            foreach (var p in pixels)
+            {
+                this.renderPixels(0, 0, p.Color, new byte[] { (byte)p.X, (byte)p.Y });
+            }
         }
 
         public void SendRaw(byte[] bytes)
@@ -285,9 +302,13 @@ namespace USBScreen
             this.writeToSerialPort(bytes);
         }
 
+        public void OnFrameEnd()
+        {
+
+        }
 
 
-
+        private bool isInvert;
 
         //坐标数组中的格式为 [x0,y0,x1,y1,x2,y2.....]
         //坐标值最大为一个字节 既不能超过255
@@ -420,7 +441,11 @@ namespace USBScreen
                 //发送数据
                 if (!this.SerialPort.IsOpen) this.SerialPort.Open();
 
+                var sw = new Stopwatch();
+                sw.Start();
                 this.SerialPort.Write(bytes, 0, bytes.Length);
+                sw.Stop();
+                Debug.WriteLine($"send {bytes.Length} bytes in {sw.ElapsedMilliseconds}ms");
 
             }
 
@@ -433,52 +458,54 @@ namespace USBScreen
         }
 
 
-        //public void AjustScreen(bool isMirror, bool isLandscape, bool isInvert)
-        //{
 
-        //    if (isMirror)
-        //    {
-        //        sendCMD122(1);
-        //    }
-        //    else
-        //    {
-        //        sendCMD122(0);
+        private void ajustScreen(bool isLandscape, bool isInvert)
+        {
 
-        //    }
+            //if (isMirror)
+            //{
+            //    sendCMD122(1);
+            //}
+            //else
+            //{
+            //    sendCMD122(0);
 
-        //    int cmd_num = 3;
-        //    //横屏 + 180度 3
-        //    if (isLandscape && isInvert)
-        //    {
-        //        cmd_num = 3;
-        //        this.ScreenWidth = 480;
-        //        this.ScreenHeight = 320;
-        //    }
-        //    //横屏 + 0度   2
-        //    else if (isLandscape && !isInvert)
-        //    {
-        //        cmd_num = 2;
-        //        this.ScreenWidth = 480;
-        //        this.ScreenHeight = 320;
-        //    }
-        //    //竖屏 + 180度 1
-        //    else if (!isLandscape && isInvert)
-        //    {
-        //        cmd_num = 1;
-        //        this.ScreenWidth = 320;
-        //        this.ScreenHeight = 480;
-        //    }
-        //    //竖屏 + 0度   0
-        //    else if (!isLandscape && !isInvert)
-        //    {
-        //        cmd_num = 0;
-        //        this.ScreenWidth = 320;
-        //        this.ScreenHeight = 480;
-        //    }
+            //}
 
-        //    sendCMD121(cmd_num, this.ScreenWidth, this.ScreenHeight);
+            int cmd_num = 3;
+            //横屏 + 180度 3
+            if (isLandscape && isInvert)
+            {
+                cmd_num = 3;
+                //this.ScreenWidth = 480;
+                //this.ScreenHeight = 320;
+            }
+            //横屏 + 0度   2
+            else if (isLandscape && !isInvert)
+            {
+                cmd_num = 2;
+                //this.ScreenWidth = 480;
+                //this.ScreenHeight = 320;
+            }
+            //竖屏 + 180度 1
+            else if (!isLandscape && isInvert)
+            {
+                cmd_num = 1;
+                //this.ScreenWidth = 320;
+                //this.ScreenHeight = 480;
+            }
+            //竖屏 + 0度   0
+            else if (!isLandscape && !isInvert)
+            {
+                cmd_num = 0;
+                //this.ScreenWidth = 320;
+                //this.ScreenHeight = 480;
+            }
 
-        //}
+            sendCMD121(cmd_num, this.RenderWidth, this.RenderHeight);
+
+        }
+
     }
 
 
