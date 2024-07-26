@@ -11,7 +11,6 @@ namespace PCMonitor.Widgets
 {
     public class Oscillogram : WidgetBase
     {
-        public override eWidgetType WidgetType => eWidgetType.Oscillogram;
 
         //当前渲染的所有数据
         public List<float> InputValues { get; private set; }

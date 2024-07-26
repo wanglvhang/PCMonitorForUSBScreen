@@ -13,43 +13,36 @@ namespace USBScreen
 
     //the device for this class is https://item.taobao.com/item.htm?spm=a1z09.2.0.0.1fe82e8dugX098&id=638243141111&_u=jcj8c444ae
     //the PNPDeviceID for this device is USB35INCHIPSV2
-    public class Device3_5:IUSBScreen
+    //DeviceName 是程序内部对设备的命名，在theme config 中指定
+    [USBScreenMeta(DeviceName = "inch35", Width = 480, Height = 320)]
+    public class Device3_5 : IUSBScreen
     {
-        public string COMName { get; private set; }
 
-        public string PNPDeviceID  { get; private set; } = "USB35INCHIPSV2";
+        public string ConnectionInfo { get; private set; }
 
+        public int RenderWidth { get; private set; } = 480;
 
+        public int RenderHeight { get; private set; } = 320;
 
-        public SerialPort SerialPort { get; private set; }
-
-        public int ScreenWidth { get; private set; } = 480;
-
-        public int ScreenHeight { get; private set; } = 320;
-
-        public eScreenStatus Status { get; private set; } = eScreenStatus.UnKnown;
+        public eScreenConnectionStatus Status { get; private set; } = eScreenConnectionStatus.UnKnown;
 
 
-        private static Device3_5 instance;
+        private const string PNPDeviceID  = "USB35INCHIPSV2";
+        private SerialPort SerialPort { get; set; }
 
-
-        private Device3_5(int width,int height)
+        public Device3_5()
         {
-            this.ScreenWidth = width;
-            this.ScreenHeight = height;
+
         }
 
 
-        //参数只支持  480 320 或 320 480
-        //添加 pnpdeviceid 参数，用于读取主题配置中的 pnpdeviceid 定义
-        public static Device3_5 GetInstance(int width, int height)
+        public void SetRenderResolution(int width, int height)
         {
-            //TODO 检查参数
-
-
-            if (instance == null) instance = new Device3_5(width,height);
-            return instance;
+            this.RenderWidth = width;
+            this.RenderHeight = height;
         }
+
+
 
 
         //连接
@@ -63,17 +56,18 @@ namespace USBScreen
                     {
                         var mos = searcher.Get();
                         //查找 PNPDeviceID 包含 USB35INCHIPSV2 的对象
-                        var obj = mos.Cast<ManagementObject>().Where(mo => mo.Properties.Cast<PropertyData>().Any(pd => pd.Name == "PNPDeviceID" && pd.Value.ToString().Contains(this.PNPDeviceID))).FirstOrDefault();
+                        var obj = mos.Cast<ManagementObject>().Where(mo => mo.Properties.Cast<PropertyData>().Any(pd => pd.Name == "PNPDeviceID" && pd.Value.ToString().Contains(PNPDeviceID))).FirstOrDefault();
 
                         if (obj == null)
                         {
-                            this.Status = eScreenStatus.NotFound;
+                            this.Status = eScreenConnectionStatus.NotFound;
                             //throw new Exception("未找到设备串口。");
                         }
                         else
                         {
-                            this.COMName = obj.Properties["DeviceID"].Value.ToString();
-                            this.SerialPort = new SerialPort(this.COMName)
+                            var comname = obj.Properties["DeviceID"].Value.ToString();
+                            this.ConnectionInfo = $"{PNPDeviceID} @ {comname}";
+                            this.SerialPort = new SerialPort(comname)
                             {
                                 DtrEnable = true,
                                 RtsEnable = true,
@@ -87,7 +81,7 @@ namespace USBScreen
                             //尝试打开
                             this.SerialPort.Open(); //打开不成功视为连接不成功
 
-                            this.Status = eScreenStatus.Connected;
+                            this.Status = eScreenConnectionStatus.Connected;
 
                         }
 
@@ -96,7 +90,7 @@ namespace USBScreen
             }
             catch (Exception ex)
             {
-                this.Status = eScreenStatus.Error;
+                this.Status = eScreenConnectionStatus.Error;
             }
         }
 
@@ -108,7 +102,6 @@ namespace USBScreen
                 this.SerialPort.Close();
                 this.SerialPort.Dispose();
             }
-            Device3_5.instance = null;
         }
 
         //关闭，熄灭屏幕
@@ -133,10 +126,80 @@ namespace USBScreen
             Thread.Sleep(3000);
         }
 
+
+
+        public void SetMirror(bool isMirror)
+        {
+            if (isMirror)
+            {
+                sendCMD122(1);
+            }
+            else
+            {
+                sendCMD122(0);
+            }
+        }
+
+        public void SetLandscapeDisplay(bool isInvert)
+        {
+            int cmd_num = 3;
+            int width = 480;
+            int height = 320;
+            //横屏 + 180度 3
+            if (isInvert)
+            {
+                cmd_num = 3;
+            }
+            //横屏 + 0度   2
+            else if (!isInvert)
+            {
+                cmd_num = 2;
+            }
+
+            sendCMD121(cmd_num, width, height);
+            //横屏
+            this.RenderWidth = width;
+            this.RenderHeight = height;
+        }
+
+        public void SetVerticalDisplay(bool isInvert)
+        {
+            int cmd_num = 1;
+            int width = 320;
+            int height = 480;
+            //竖屏 + 180度 1
+            if (isInvert)
+            {
+                cmd_num = 1;
+            }
+            //竖屏 + 0度   0
+            else if (!isInvert)
+            {
+                cmd_num = 0;
+            }
+
+            sendCMD121(cmd_num, width, height);
+            this.RenderWidth = width;
+            this.RenderHeight = height;
+        }
+
+        //value值为0到255， 值越小越亮 , 传入的 brightness 为 1~100 越高越亮
+        public void SetBrightness(int brightness)
+        {
+            this.Connect();
+            this.Startup();
+
+            int device_bright_value = 255 - (int)(255 * brightness / 100);
+
+            this.sendCMD(110, device_bright_value, 0, 0, 0);
+        }
+
+
+
         public void RenderBitmap(Bitmap img, int posX, int posY)
         {
             //检查渲染内容是否超过屏幕
-            if ((img.Width + posX > this.ScreenWidth) || (img.Height + posY > this.ScreenHeight))
+            if ((img.Width + posX > this.RenderWidth) || (img.Height + posY > this.RenderHeight))
             {
                 throw new Exception("渲染的图片超出屏幕");
             }
@@ -144,7 +207,7 @@ namespace USBScreen
             //注意！由于设备未知的原因，渲染bitmap时，img的宽度需要是偶数？4的整数，更具图片的stride
             //上面的问题已经解决
 
-            this.sendCMD(197, posX, posY, posX + img.Width - 1 , posY + img.Height - 1 );
+            this.sendCMD(197, posX, posY, posX + img.Width - 1, posY + img.Height - 1);
 
             this.writeToSerialPort(getBytesFromBitmap(img));
 
@@ -152,10 +215,83 @@ namespace USBScreen
 
         }
 
+        public void RenderColor(Rectangle rec, Color color)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderPixels(Color pixelColor, IEnumerable<Point> points)
+        {
+            if (points == null || points.Count() == 0) return;
+            var inscope_point_bytes = new List<byte>();
+            //需要对坐标值大于255的数据使用 offset来绘制
+            var outscope_points = new List<Point>();
+            var outscope_point_bytes = new List<byte>();
+            foreach (var p in points)
+            {
+                if (p.X < 256 && p.Y < 256)
+                {
+                    inscope_point_bytes.Add((byte)p.X);
+                    inscope_point_bytes.Add((byte)p.Y);
+                }
+                else
+                {
+                    outscope_points.Add(p);
+                }
+            }
+
+            renderPixels(0, 0, pixelColor, inscope_point_bytes.ToArray());
+
+            if (outscope_points.Count > 0)
+            {
+                //对于字节坐标区域外的数据选取一个合适的offset
+                var min_X = outscope_points.OrderBy(p => p.X).FirstOrDefault().X;
+                var max_X = outscope_points.OrderByDescending(p => p.X).FirstOrDefault().X;
+
+                if (max_X - min_X > 255)
+                {
+                    throw new Exception("offset 设置无法满足所有坐标点，既两个坐标点的Y轴跨度太大");
+                }
+
+                var min_Y = outscope_points.OrderBy(p => p.Y).FirstOrDefault().Y;
+                var max_Y = outscope_points.OrderByDescending(p => p.Y).FirstOrDefault().Y;
+
+                if (max_X - min_X > 255)
+                {
+                    throw new Exception("offset 设置无法满足所有坐标点，既两个坐标点的Y轴跨度太大");
+                }
+
+                //若无异常 则取min_X 和 min_Y 作为 offset
+                foreach (var op in outscope_points)
+                {
+                    outscope_point_bytes.Add((byte)(op.X - min_X));
+                    outscope_point_bytes.Add((byte)(op.Y - min_Y));
+                }
+
+                renderPixels(min_X, min_Y, pixelColor, outscope_point_bytes.ToArray());
+
+            }
+
+
+        }
+
+        public void RenderPixels(IEnumerable<Pixel> Pixels)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendRaw(byte[] bytes)
+        {
+            this.writeToSerialPort(bytes);
+        }
+
+
+
+
 
         //坐标数组中的格式为 [x0,y0,x1,y1,x2,y2.....]
         //坐标值最大为一个字节 既不能超过255
-        public void RenderPixels(int offsetX,int offsetY, Color pixelColor, byte[] coordinates)
+        private void renderPixels(int offsetX, int offsetY, Color pixelColor, byte[] coordinates)
         {
             int each_length = 56;
             int bytes_sended = 0;
@@ -184,130 +320,8 @@ namespace USBScreen
 
                 bytes_sended += bytes_count_tosend_this_time;
             }
-            
-        }
-
-        public void RenderPixels(Color pixelColor, IEnumerable<Point> points)
-        {
-            if (points == null || points.Count() == 0) return;
-            var inscope_point_bytes = new List<byte>();
-            //需要对坐标值大于255的数据使用 offset来绘制
-            var outscope_points = new List<Point>();
-            var outscope_point_bytes = new List<byte>();
-            foreach (var p in points)
-            {
-                if (p.X < 256 && p.Y < 256)
-                {
-                    inscope_point_bytes.Add((byte)p.X);
-                    inscope_point_bytes.Add((byte)p.Y);
-                }
-                else
-                {
-                    outscope_points.Add(p);
-                }
-            }
-
-            RenderPixels(0, 0, pixelColor, inscope_point_bytes.ToArray());
-
-            if (outscope_points.Count > 0)
-            {
-                //对于字节坐标区域外的数据选取一个合适的offset
-                var min_X = outscope_points.OrderBy(p => p.X).FirstOrDefault().X;
-                var max_X = outscope_points.OrderByDescending(p => p.X).FirstOrDefault().X;
-
-                if (max_X - min_X > 255)
-                {
-                    throw new Exception("offset 设置无法满足所有坐标点，既两个坐标点的Y轴跨度太大");
-                }
-
-                var min_Y = outscope_points.OrderBy(p => p.Y).FirstOrDefault().Y;
-                var max_Y = outscope_points.OrderByDescending(p => p.Y).FirstOrDefault().Y;
-
-                if (max_X - min_X > 255)
-                {
-                    throw new Exception("offset 设置无法满足所有坐标点，既两个坐标点的Y轴跨度太大");
-                }
-
-                //若无异常 则取min_X 和 min_Y 作为 offset
-                foreach (var op in outscope_points)
-                {
-                    outscope_point_bytes.Add((byte)(op.X - min_X));
-                    outscope_point_bytes.Add((byte)(op.Y - min_Y));
-                }
-
-                RenderPixels(min_X, min_Y, pixelColor, outscope_point_bytes.ToArray());
-
-            }
-
 
         }
-
-
-        public void SetMirror(bool isMirror)
-        {
-            if (isMirror)
-            {
-                sendCMD122(1);
-            }
-            else
-            {
-                sendCMD122(0);
-            }
-        }
-
-        public void SetLandscapeDisplay(bool isInvert)
-        {
-            int cmd_num = 3;
-            int width = 320;
-            int height = 480;
-            //横屏 + 180度 3
-            if (isInvert)
-            {
-                cmd_num = 3;
-            }
-            //横屏 + 0度   2
-            else if (!isInvert)
-            {
-                cmd_num = 2;
-            }
-
-            sendCMD121(cmd_num, width, height);
-        }
-
-        public void SetVerticalDisplay(bool isInvert)
-        {
-            int cmd_num = 1;
-            int width = 480;
-            int height = 320;
-            //竖屏 + 180度 1
-            if (isInvert)
-            {
-                cmd_num = 1;
-            }
-            //竖屏 + 0度   0
-            else if (!isInvert)
-            {
-                cmd_num = 0;
-            }
-
-            sendCMD121(cmd_num, width, height);
-        }
-
-
-        //value值为0到255， 值越小越亮 , 传入的 brightness 为 1~100 越高越亮
-        public void SetBrightness(int brightness)
-        {
-            this.Connect();
-            this.Startup();
-
-            int device_bright_value = 255 - (int)(255 * brightness / 100);
-
-            this.sendCMD(110, device_bright_value, 0, 0, 0);
-        }
-
-
-        //=============================================================================================
-
 
         //通用发送指令方法
         private void sendCMD(int cmd_code, int left, int top, int right, int bottom, byte[] bytes = null, int delay = 10)
@@ -347,7 +361,6 @@ namespace USBScreen
             this.sendCMD(121, 0, 0, 0, 0, byte_0);
         }
 
-
         //是否镜像
         private void sendCMD122(int mode_num)
         {
@@ -372,7 +385,7 @@ namespace USBScreen
 
 
             var pixel_bytes = new byte[size * 2];
-            if(bitmap_data.Stride == bitmap.Width * 2)
+            if (bitmap_data.Stride == bitmap.Width * 2)
             {
                 Marshal.Copy(bitmap_data.Scan0, pixel_bytes, 0, pixel_bytes.Length);
             }
@@ -401,7 +414,7 @@ namespace USBScreen
 
         private void writeToSerialPort(byte[] bytes)
         {
-            if (this.Status == eScreenStatus.Connected)
+            if (this.Status == eScreenConnectionStatus.Connected)
             {
 
                 //发送数据
@@ -413,10 +426,12 @@ namespace USBScreen
 
         }
 
-        public void SendCMD(byte[] data)
+
+        private void SendCMD(byte[] data)
         {
             throw new NotImplementedException();
         }
+
 
         //public void AjustScreen(bool isMirror, bool isLandscape, bool isInvert)
         //{

@@ -1,7 +1,7 @@
 {
   "device": "tgus",
-  "width": 480,
-  "height": 480,
+  "width": 0,
+  "height": 0,
   "comName": "COM4",
   "baudRate": 115200,
   "isDataOnly": true,
@@ -9,8 +9,11 @@
   "widgets": [
     {
       "type": "TGUSControl",
-      "data": "cpu_load",
-      "address": "FFFF"
+      "data": "CPU_Fan_Speed",
+      "address": "0004",
+      "valueType": "str/num",
+      "strLength": 3,
+      "TextAlignment": "Far"
     }
 
   ]

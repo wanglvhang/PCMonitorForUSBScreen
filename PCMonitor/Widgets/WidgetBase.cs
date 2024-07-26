@@ -13,8 +13,6 @@ namespace PCMonitor
 
         public eMonitorDataType DataType { get; protected set; }
 
-        public abstract eWidgetType WidgetType { get; }
-
         public DataForRender PrevData { get; protected set; }
 
         public bool IsOneTimeOnly { get; protected set; }
@@ -52,6 +50,5 @@ namespace PCMonitor
 
         public string Str { get; set; }
     }
-
 
 }

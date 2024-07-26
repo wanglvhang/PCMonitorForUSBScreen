@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>USBScreen</RootNamespace>
     <AssemblyName>USBScreen</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -44,11 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Device3_5.cs" />
-    <Compile Include="TGUScreen.cs" />
+    <Compile Include="Devices\Device3_5.cs" />
+    <Compile Include="Devices\TGUScreen.cs" />
+    <Compile Include="Devices\VirtualScreen.cs" />
     <Compile Include="IUSBScreen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VirtualScreen.cs" />
+    <Compile Include="USBScreenMetaAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

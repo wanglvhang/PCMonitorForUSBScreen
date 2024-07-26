@@ -14,43 +14,27 @@ namespace USBScreen
     //支持冠显串口屏指令集 1.4的屏幕
     public class TGUScreen : IUSBScreen
     {
-        public int ScreenWidth { get; private set; } = 480;
+        public int RenderWidth { get; private set; } = 480;
 
-        public int ScreenHeight { get; private set; } = 480;
+        public int RenderHeight { get; private set; } = 480;
 
-        public eScreenStatus Status { get; private set; }
+        public eScreenConnectionStatus Status { get; private set; } = eScreenConnectionStatus.UnKnown;
 
-        public string COMName { get; private set; }
-
-
-        private int baudRate;
+        public string COMName { get; private set; } = "COM4";
 
 
-        private static TGUScreen instance;
+        private int baudRate = 115200;
 
-        public static TGUScreen GetInstance(int width, int height, string comName, int baudRate)
+
+        private TGUScreen()
         {
-            //TODO 检查参数 默认baudrate为 115200
-            //baudrate检查 RS232最大传输速率只能是115200
-            //1200	2400	4800	9600	19200	38400	57600	115200
-
-
-            if (instance == null) instance = new TGUScreen(width, height, comName, baudRate);
-            return instance;
-        }
-
-
-        private TGUScreen(int width, int height, string comName, int baudRate)
-        {
-            this.ScreenWidth = width;
-            this.ScreenHeight = height;
-            this.COMName = comName;
-            this.baudRate = baudRate;
 
         }
 
 
         public SerialPort SerialPort { get; private set; }
+
+        public string ConnectionInfo => throw new NotImplementedException();
 
         public void Connect()
         {
@@ -70,7 +54,7 @@ namespace USBScreen
                         Parity = Parity.None
                     };
 
-                    this.Status = eScreenStatus.Connected;
+                    this.Status = eScreenConnectionStatus.Connected;
 
                     //}
                     this.SerialPort.Open();
@@ -87,7 +71,7 @@ namespace USBScreen
             }
             catch (Exception ex)
             {
-                this.Status = eScreenStatus.Error;
+                this.Status = eScreenConnectionStatus.Error;
             }
         }
 
@@ -98,7 +82,6 @@ namespace USBScreen
                 this.SerialPort.Close();
                 this.SerialPort.Dispose();
             }
-            TGUScreen.instance = null;
         }
 
         public void RenderBitmap(Bitmap img, int posX, int posY)
@@ -153,10 +136,6 @@ namespace USBScreen
             return;
         }
 
-        public void SendCMD(byte[] data)
-        {
-            throw new NotImplementedException();
-        }
 
 
 
@@ -208,6 +187,7 @@ namespace USBScreen
 
         }
 
+
         private List<Byte> readFromSerialPort()
         {
             //读取返回
@@ -236,6 +216,25 @@ namespace USBScreen
             return readBytes;
         }
 
+        public void SetRenderResolution(int width, int height)
+        {
+            this.RenderWidth = width;
+            this.RenderHeight = height;
+        }
 
+        public void RenderColor(Rectangle rec, Color color)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderPixels(IEnumerable<Pixel> Pixels)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendRaw(byte[] bytes)
+        {
+            this.writeToSerialPort(bytes);
+        }
     }
 }

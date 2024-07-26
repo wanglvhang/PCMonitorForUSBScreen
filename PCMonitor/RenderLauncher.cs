@@ -13,75 +13,81 @@ using Task = System.Threading.Tasks.Task;
 
 namespace PCMonitor
 {
+    /// <summary>
+    /// 该类职责： 1.背景准备  2.构建screenRender 3.Run 回调
+    /// </summary>
     public class RenderLauncher : IDisposable
     {
 
-        public ScreenRender ScreenRender { get; private set; }
+        public ScreenRenderer ScreenRenderer { get; private set; }
 
-        public IUSBScreen USBScreen
-        {
-            get
-            {
-                return GetUSBScreenByDevice(this.screenDevice);
-            }
-        }
+        public IUSBScreen Screen { get; private set; }
+        public USBScreenMetaAttribute ScreenMeta { get; private set; }
+
 
         private AppConfig appConfig;
-        private ThemeConfig themeConfig;
-        private string themePath;
-        private eScreenDevice screenDevice;
-
-
+        private ThemePackage themePackage;
         private DateTime lastRunScreenProtectTime;
 
 
-        private IUSBScreen GetUSBScreenByDevice(eScreenDevice device)
-        {
-            if (device == eScreenDevice.inch35)
-            {
-                return Device3_5.GetInstance(this.themeConfig.width, this.themeConfig.height);
-            }
-            else if (device == eScreenDevice.tgus)
-            {
-                return TGUScreen.GetInstance(this.themeConfig.width,this.themeConfig.height,
-                    this.themeConfig.comName,this.themeConfig.baudRate);
-            }
-            else
-            {
-                return null;
-            }
-        }
 
-
-        public RenderLauncher(AppConfig appCon, string theme_path, ThemeConfig themeCon)
+        public RenderLauncher(AppConfig appCon, ThemePackage themePackage)
         {
             this.appConfig = appCon;
-            this.themePath = theme_path;
-            this.themeConfig = themeCon;
-            this.screenDevice = themeCon.device.toEnum<eScreenDevice>();
-            this.lastRunScreenProtectTime = DateTime.Now;
+            this.themePackage = themePackage;
+            this.lastRunScreenProtectTime = DateTime.Now;//屏保运行时间记录
+
+            //初始化usbscreen
+            this.initialUSBScreen();
 
             this.initialScreenRender();
 
         }
 
+
+        private void initialUSBScreen()
+        {
+            //使用反射
+            var screen_assembly = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.StartsWith("USBScreen")).FirstOrDefault();
+
+            var screen_types = screen_assembly.GetTypes().Where(t => typeof(IUSBScreen).IsAssignableFrom(t) && !t.IsInterface).ToList();
+
+            foreach (var t in screen_types)
+            {
+                var attr = t.GetCustomAttributes(typeof(USBScreenMetaAttribute), false).FirstOrDefault();
+
+                if (attr != null)
+                {
+                    var meta_attr = attr as USBScreenMetaAttribute;
+
+                    if (meta_attr.DeviceName.ToLower() == this.themePackage.Config.device.ToLower())
+                    {
+                        //初始化类型
+                        this.ScreenMeta = meta_attr;
+                        this.Screen = Activator.CreateInstance(t) as IUSBScreen;
+
+                        this.Screen.SetRenderResolution(themePackage.Config.width, themePackage.Config.height);
+                        //TODO: 检查分辨率是否OK
+                    }
+                }
+            }
+
+            //建设themeconfig中device设置是否正确
+            if (this.Screen == null || this.ScreenMeta == null)
+            {
+                throw new Exception("无法找到主题指定的设备，请检查主题配置中device设置是否正确。");
+            }
+
+        }
         //包括初始化 monitor
         private void initialScreenRender ()
         {
-            //read theme config
-            var bg_path = $"{themePath}\\bg.png";
-            Bitmap bg_img = null; //若bg.png不存在则 bg_img为空
-            if (File.Exists(bg_path))
-            {
-                bg_img = new Bitmap(bg_path);
-            }
-
 
             var start_date = Convert.ToDateTime(this.appConfig.StartDate);
 
-            var mdp = new MonitorDataProvider(start_date, this.appConfig.CPUFanIndex, this.appConfig.NetworkInterface);
+            var mdp = new MonitorDataProvider(start_date, this.appConfig.CPUFanIndex, this.appConfig.MainboardIndex, this.appConfig.NetworkInterface);
 
-            this.ScreenRender = new ScreenRender(bg_img, USBScreen, mdp, this.themeConfig);
+            this.ScreenRenderer = new ScreenRenderer(this.Screen,this.themePackage, mdp);
 
         }
 
@@ -96,15 +102,15 @@ namespace PCMonitor
             {
                 //判断是否需要执行屏保
                 var time_since_last_screenprotect = DateTime.Now - lastRunScreenProtectTime;
-                if(this.appConfig.ScreenProtect && !this.themeConfig.isDataOnly  &&  time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval * 60)
+                if(this.appConfig.ScreenProtect && !this.themePackage.Config.isDataOnly  &&  time_since_last_screenprotect.TotalSeconds >= this.appConfig.ScreenProtectInterval * 60)
                 {
                     //run screen protect
-                    this.ScreenRender.ScreenProtect();
+                    this.ScreenRenderer.ScreenProtect();
                     lastRunScreenProtectTime = DateTime.Now;
                 }
 
                 var now = DateTime.Now;
-                this.ScreenRender.Refresh();
+                this.ScreenRenderer.RenderFrame();
                 var span = DateTime.Now - now;
                 uiCallback(count, span.TotalMilliseconds);
 
@@ -123,11 +129,8 @@ namespace PCMonitor
 
         public void Dispose()
         {
-            this.USBScreen.Dispose();
+            this.Screen.Dispose();
         }
-
-
-
 
     }
 
@@ -137,10 +140,5 @@ namespace PCMonitor
         public bool Stop { get; set; }
     }
 
-    public enum eScreenDevice
-    {
-        inch35,
-        tgus, //冠显tgus屏幕，该适配只传输数据到串口屏幕
-    }
 
 }

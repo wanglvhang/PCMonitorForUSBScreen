@@ -32,11 +32,12 @@ namespace PCMonitor.UI
 
 
         private RenderLauncher renderLauncher;
-        private SynchronizationContext synchronizationContext;
-        private RenderStopSignal signal = new RenderStopSignal() { Stop = false };
+        private readonly SynchronizationContext synchronizationContext;
+        private readonly RenderStopSignal signal = new RenderStopSignal() { Stop = false };
         private string appConfig_path;
         private AppConfig appConfig;
-        private ThemeConfig themeConfig;
+        //private ThemeConfig themeConfig;
+        private ThemePackage themePackage;
         private string themeFolder_path;
         private Thread workThread;
         private string work_dir;
@@ -74,9 +75,11 @@ namespace PCMonitor.UI
             foreach (var f in fans)
             {
                 this.cmbCPUFans.Items.Add(f.Name);
+                this.cmbMainboardFan.Items.Add(f.Name);
             }
 
             this.cmbCPUFans.SelectedIndex = 0;
+            this.cmbMainboardFan.SelectedIndex = 0;
 
             //start date
             var startData = Convert.ToDateTime(this.appConfig.StartDate);
@@ -134,6 +137,7 @@ namespace PCMonitor.UI
             //初始化完成后挂载时间
             this.cmbNetInterfaces.SelectedIndexChanged += CmbNetInterfaces_SelectedIndexChanged;
             this.cmbCPUFans.SelectedIndexChanged += CmbFans_SelectedIndexChanged;
+            this.cmbMainboardFan.SelectedIndexChanged += cmbMainboardFan_SelectedIndexChanged;
             this.cmbFrameTime.SelectedIndexChanged += CmbFrameTime_SelectedIndexChanged;
             this.dtpStartDate.ValueChanged += DtpStartDate_ValueChanged;
             this.cmbThemes.SelectedIndexChanged += CmbThemes_SelectedIndexChanged;
@@ -171,13 +175,17 @@ namespace PCMonitor.UI
             //读取并显示主题配置=============================
 
             this.themeFolder_path = $"{this.work_dir}\\themes\\{theme_name}";
-            var theme_json_path = $"{this.work_dir}\\themes\\{theme_name}\\config.json";
-            this.themeConfig = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_json_path));
 
-            this.labDevice.Text = this.themeConfig.device;
-            this.labWidgetCount.Text = this.themeConfig.Widgets.Count.ToString();
-            //宽度 高度
-            this.labScreenWH.Text = $"W{this.themeConfig.width}xH{this.themeConfig.height}";
+            this.themePackage = ThemePackage.FromFolder(this.themeFolder_path);
+
+            //var theme_json_path = $"{this.work_dir}\\themes\\{theme_name}\\config.json";
+            //this.themeConfig = JsonConvert.DeserializeObject<ThemeConfig>(File.ReadAllText(theme_json_path));
+
+            this.labDevice.Text = this.themePackage.Config.device;
+            this.labWidgetCount.Text = this.themePackage.Config.Widgets.Count.ToString();
+
+            //主题定义的渲染宽高
+            this.labRenderWH.Text = $"W{this.themePackage.Config.width}xH{this.themePackage.Config.height}";
 
 
             this.labDeviceStatus.ForeColor = Color.Gray;
@@ -188,23 +196,26 @@ namespace PCMonitor.UI
 
 
 
-            this.renderLauncher = new RenderLauncher(this.appConfig, this.themeFolder_path, this.themeConfig);
+            this.renderLauncher = new RenderLauncher(this.appConfig, this.themePackage);
+
+            //屏幕实际的 宽度 高度
+            this.labScreenWH.Text = $"W{this.renderLauncher.ScreenMeta.Width}xH{this.renderLauncher.ScreenMeta.Height}";
 
             //连接设备
             try
             {
-                this.renderLauncher.USBScreen.Connect();
+                this.renderLauncher.Screen.Connect();
                 //连接后设置状态
-                this.labDeviceStatus.Text = this.renderLauncher.USBScreen.Status.ToString();
+                this.labDeviceStatus.Text = this.renderLauncher.Screen.Status.ToString();
                 //设置com name
-                this.labComName.Text = this.renderLauncher.USBScreen.COMName;
+                this.labComName.Text = this.renderLauncher.Screen.ConnectionInfo;
 
                 //根据状态 设置文字颜色
-                if (this.renderLauncher.USBScreen.Status == eScreenStatus.Connected)
+                if (this.renderLauncher.Screen.Status == eScreenConnectionStatus.Connected)
                 {
                     this.labDeviceStatus.ForeColor = Color.Green;
                 }
-                else if (this.renderLauncher.USBScreen.Status == eScreenStatus.Error)
+                else if (this.renderLauncher.Screen.Status == eScreenConnectionStatus.Error)
                 {
                     this.labDeviceStatus.ForeColor = Color.Red;
                 }
@@ -215,9 +226,9 @@ namespace PCMonitor.UI
 
                 this.updateScreenOperateBtns(false);
 
-                if (this.renderLauncher.USBScreen.Status == eScreenStatus.Connected)
+                if (this.renderLauncher.Screen.Status == eScreenConnectionStatus.Connected)
                 {
-                    this.renderLauncher.USBScreen.Startup();
+                    this.renderLauncher.Screen.Startup();
                     this.btnStart.Enabled = true;
                 }
                 else
@@ -295,6 +306,12 @@ namespace PCMonitor.UI
             saveAppConfig();
         }
 
+        private void cmbMainboardFan_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.appConfig.MainboardIndex = this.cmbMainboardFan.SelectedIndex;
+            saveAppConfig();
+        }
+
         private void CmbNetInterfaces_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.appConfig.NetworkInterface = this.cmbNetInterfaces.SelectedItem.ToString();
@@ -332,7 +349,7 @@ namespace PCMonitor.UI
             this.btnStop.Enabled = true;
 
             //每次绘制之前，重新绘制背景图片
-            this.renderLauncher.ScreenRender.DrawBackground();
+            this.renderLauncher.ScreenRenderer.DrawBackground();
 
             this.signal.Stop = false;
 
@@ -374,9 +391,9 @@ namespace PCMonitor.UI
         {
             this.labBrightness.Text = this.tbarBrightness.Value.ToString();
 
-            var device = this.themeConfig.device.toEnum<eScreenDevice>();
+            //var device = this.themeConfig.device.toEnum<eScreenDevice>();
             //var usbScreen = RenderLauncher.GetUSBScreenByDevice(device);
-            var usbScreen = this.renderLauncher.USBScreen;
+            var usbScreen = this.renderLauncher.Screen;
 
             usbScreen.SetBrightness(this.tbarBrightness.Value);
 
@@ -473,6 +490,7 @@ namespace PCMonitor.UI
         {
             this.cmbFrameTime.Enabled = false;
             this.cmbCPUFans.Enabled = false;
+            this.cmbMainboardFan.Enabled = false;
             this.cmbNetInterfaces.Enabled = false;
             this.cmbThemes.Enabled = false;
             this.dtpStartDate.Enabled = false;
@@ -487,6 +505,7 @@ namespace PCMonitor.UI
         {
             this.cmbFrameTime.Enabled = true;
             this.cmbCPUFans.Enabled = true;
+            this.cmbMainboardFan.Enabled = true;
             this.cmbNetInterfaces.Enabled = true;
             this.cmbThemes.Enabled = true;
             this.dtpStartDate.Enabled = true;
@@ -511,7 +530,7 @@ namespace PCMonitor.UI
             }
             else
             {
-                if (this.renderLauncher.USBScreen.Status == USBScreen.eScreenStatus.Connected)
+                if (this.renderLauncher.Screen.Status == USBScreen.eScreenConnectionStatus.Connected)
                 {
                     this.btnMirror.Enabled = true;
                     this.btnNormal.Enabled = true;
@@ -551,7 +570,7 @@ namespace PCMonitor.UI
 
                     var definition = ts.NewTask();
                     definition.RegistrationInfo.Description = "PCMonitor Auto-Start";
-                    definition.Triggers.Add<LogonTrigger>(new LogonTrigger());
+                    definition.Triggers.Add<LogonTrigger>(new LogonTrigger() { Delay = TimeSpan.FromSeconds(30) }); //延时启动防止出现网卡未初始化成功而报异常
                     definition.Principal.RunLevel = TaskRunLevel.Highest;
                     definition.Actions.Add<ExecAction>(new ExecAction(exe_path, "-auto", working_dir));
 
@@ -605,6 +624,7 @@ namespace PCMonitor.UI
         {
 
         }
+
     }
 
 

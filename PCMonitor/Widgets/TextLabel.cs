@@ -12,14 +12,8 @@ namespace PCMonitor.Widgets
     {
         public Font TextFont { get; private set; }
 
-        //public FontStyle TextStyle { get; private set; }
 
         public StringFormat TextFormat { get; private set; }
-
-        //public string DisplayText { get; private set; }
-
-        public override eWidgetType WidgetType => eWidgetType.TextLabel;
-
 
 
         public TextLabel(eMonitorDataType dataType, Rectangle rectangle, Color frontColor, Color? bgColor,Font textFont, StringAlignment textAlignment, StringAlignment lineAlignment)

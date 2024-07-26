@@ -12,6 +12,8 @@ namespace PCMonitor
 
         public int CPUFanIndex { get; set; }
 
+        public int MainboardIndex { get; set; }
+
         public string StartDate { get; set; }
 
         public int FrameTime { get; set; }

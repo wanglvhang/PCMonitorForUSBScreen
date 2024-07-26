@@ -10,18 +10,18 @@ namespace USBScreen
     public interface IUSBScreen:IDisposable
     {
 
-        //屏幕的属性
-        //屏幕需要在startup后设置好屏幕的默认的宽高像素
-        int ScreenWidth { get; }
-        int ScreenHeight { get; }
+        //屏幕实例信息
+        int RenderWidth { get; }
+        int RenderHeight { get; }
 
-        eScreenStatus Status { get; }
+        eScreenConnectionStatus Status { get; } //连接状态
 
-        string COMName { get; }
+        string ConnectionInfo { get; } //连接信息
 
-        //屏幕常规操作
+        void SetRenderResolution(int width, int height);
 
-        //连接, 该方法需要在生成serialport实例后 调用open方法来测试连接是否成功
+        //屏幕基本操作方法===============================================
+        //连接
         void Connect();
 
         //启动/打开
@@ -34,8 +34,7 @@ namespace USBScreen
         void Shutdown();
 
 
-        //void AjustScreen(bool isMirror, bool isLandscape, bool isInvert);
-
+        //屏幕显示设置相关方法=============================================
         //镜像设置
         void SetMirror(bool isMirror);
 
@@ -50,38 +49,43 @@ namespace USBScreen
 
 
 
-        //渲染与绘制相关方法
 
-        void RenderPixels(int offsetX, int offsetY, Color pixelColor, byte[] coordinates);
+        //渲染与绘制相关方法==============================================
+
+        //渲染矩形色块
+        void RenderColor(Rectangle rec, Color color);
 
         void RenderPixels(Color pixelColor, IEnumerable<Point> points);
 
+        //渲染像素集合？
+        void RenderPixels(IEnumerable<Pixel> Pixels);
+
+        //渲染图片
         void RenderBitmap(Bitmap img, int posX, int posY);
 
-        void SendCMD(byte[] data);
-
-
-        //绘制圆弧
-
-
-        //绘制直线
-
-
-        //绘制文字
-
-
-        //绘制矩形
-
+        void SendRaw(byte[] bytes);
 
     }
 
 
-    public enum eScreenStatus
+    public enum eScreenConnectionStatus
     {
         UnKnown,
         Connected,
         NotFound,
         Error
+    }
+
+
+    public class Pixel
+    {
+        public Pixel(Point point, Color color) {
+            Point = point;
+            Color = color;
+        }
+
+        public Point Point { get; private set; }
+        public Color Color { get; private set; }
     }
 
 

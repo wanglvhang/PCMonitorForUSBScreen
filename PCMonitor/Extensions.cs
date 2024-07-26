@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using USBScreen;
 
 namespace PCMonitor
 {
@@ -41,6 +42,18 @@ namespace PCMonitor
                 return default(T);
 
             return (T)Enum.Parse(typeof(T), str);
+        }
+
+
+        public static Bitmap CreateCopy(this Bitmap source)
+        {
+           return source.Clone(new Rectangle(0, 0, source.Width, source.Height), System.Drawing.Imaging.PixelFormat.Format16bppRgb565);
+        }
+
+        //与目标对比，并以source为准（获取的像素为对于source上的） 获取所有不同的像素
+        public static IList<Pixel> DiffFrom(this Bitmap source, Bitmap target)
+        {
+            return null;
         }
 
     }

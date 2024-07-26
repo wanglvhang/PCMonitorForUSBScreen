@@ -3,7 +3,7 @@
   "cpuFanIndex": 0,
   "startDate": "1990/12/12",
   "frameTime": 1000,
-  "theme": "tgusdefault",
+  "theme": "default",
   "screenProtect": true,
   "ScreenProtectInterval": 120,
   "screenBrightness": 43

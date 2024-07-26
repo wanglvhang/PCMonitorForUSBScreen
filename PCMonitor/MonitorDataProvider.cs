@@ -26,6 +26,8 @@ namespace PCMonitor
 
         private int cpu_fan_index;
 
+        private int mainboard_fan_index;
+
         private string network_interface_name;
 
 
@@ -33,7 +35,7 @@ namespace PCMonitor
 
 
 
-        public MonitorDataProvider(DateTime startDate,int cpu_fan_index = 0, string ni_name ="")
+        public MonitorDataProvider(DateTime startDate, int cpu_fan_index = 0, int mainboard_fan_index = 0, string ni_name = "")
         {
             var hv = new UpdateVisitor();
             Computer = new Computer();
@@ -50,6 +52,7 @@ namespace PCMonitor
             Computer.Accept(hv);
 
             this.cpu_fan_index = cpu_fan_index;
+            this.mainboard_fan_index = mainboard_fan_index;
             this.network_interface_name = ni_name;
             this.start_date = startDate;
 
@@ -118,6 +121,7 @@ namespace PCMonitor
                 case eMonitorDataType.CPU_Fan_Speed:
                     //TODO 确定获取cpu的风扇
                     this.SuperIO.Update();
+                    //var ss = this.SuperIO.Sensors.Where(s => s.SensorType == SensorType.Fan).ToArray();
                     sensor = this.SuperIO.Sensors.Where(s => s.SensorType == SensorType.Fan).ToArray()[this.cpu_fan_index];
                     break;
                 case eMonitorDataType.GPU_Load:

@@ -11,10 +11,6 @@ namespace PCMonitor.Widgets
 {
     public class PercentBar : WidgetBase
     {
-        public override eWidgetType WidgetType =>  eWidgetType.PercentBar;
-
-
-        //private Rectangle prevFrontRec;
 
         private int preDataDimensionValue;
 
@@ -92,81 +88,6 @@ namespace PCMonitor.Widgets
                 screen.RenderBitmap(widget_canvas, this.Area.X, this.Area.Y);
 
                 this.PrevData = data;
-
-                //}
-                //else
-                //{
-
-                //    //检查数值是变大了还是变小了，为了节省性能，只绘制变化区域，若变小则绘制成背景色，若变大则设置为前景色
-                //    //根据之前的的变化区域获取本次的变化区域
-                //    var changed_rec = new Rectangle();
-                //    var isIncrease = data.Num > prevData.Num ? true : false;
-
-
-                //    int changed_length = Convert.ToInt32(Math.Abs((data.Num - prevData.Num).Value) * bar_length / 100f);
-
-                //    //若无变化则不选软
-                //    if (changed_length == 0)
-                //    {
-                //        this.prevData = data;//保留数据微小的变化
-                //        return;
-                //    }
-
-                //    if (isHorizontal && isIncrease)
-                //    {
-                //        changed_rec.X = preDataDimensionValue + changed_length;
-                //        changed_rec.Y = this.Area.Y;
-                //        changed_rec.Width = changed_length;
-                //        changed_rec.Height = this.Area.Height;
-
-                //        this.preDataDimensionValue += changed_length;
-
-                //        graphics.FillRectangle(new SolidBrush(this.FrontColor), changed_rec);
-                //    }
-                //    else if (isHorizontal && !isIncrease)
-                //    {
-                //        changed_rec.X = preDataDimensionValue - changed_length;
-                //        changed_rec.Y = this.Area.Y;
-                //        changed_rec.Width = changed_length;
-                //        changed_rec.Height = this.Area.Height;
-
-                //        this.preDataDimensionValue -= changed_length;
-
-                //        graphics.FillRectangle(new SolidBrush(this.BackgroundColor.Value), changed_rec);
-                //    }
-                //    else if (!isHorizontal && isIncrease)
-                //    {
-                //        changed_rec.X = this.Area.X;
-                //        changed_rec.Y = preDataDimensionValue + changed_length;
-                //        changed_rec.Width = this.Area.Width;
-                //        changed_rec.Height = changed_length;
-
-                //        this.preDataDimensionValue += changed_length;
-
-                //        graphics.FillRectangle(new SolidBrush(this.FrontColor), changed_rec);
-                //    }
-                //    else if (!isHorizontal && !isIncrease)
-                //    {
-                //        changed_rec.X = this.Area.X;
-                //        changed_rec.Y = preDataDimensionValue - changed_length;
-                //        changed_rec.Width = this.Area.Width;
-                //        changed_rec.Height = changed_length;
-
-                //        this.preDataDimensionValue -= changed_length;
-
-                //        graphics.FillRectangle(new SolidBrush(this.BackgroundColor.Value), changed_rec);
-                //    }
-
-                //    graphics.Save();
-
-                //    var changed_bitmap = widget_canvas.Clone(changed_rec, PixelFormat.Format16bppRgb565);
-
-                //    screen.RenderBitmap(changed_bitmap, changed_rec.X, changed_rec.Y);
-
-
-                //}
-
-                //prevData = data;
 
             }
 

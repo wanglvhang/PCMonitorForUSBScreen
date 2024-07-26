@@ -9,23 +9,23 @@ namespace USBScreen
 {
     public class VirtualScreen : IUSBScreen
     {
-        public int ScreenWidth => 480;
+        public int RenderWidth => 480;
 
-        public int ScreenHeight => 320;
+        public int RenderHeight => 320;
 
         public Bitmap ResultImage { get { return this.canvas; } }
 
-        public eScreenStatus Status => throw new NotImplementedException();
+        public eScreenConnectionStatus Status => throw new NotImplementedException();
 
         public string PNPDeviceID => throw new NotImplementedException();
 
-        public string COMName => throw new NotImplementedException();
+        public string ConnectionInfo => throw new NotImplementedException();
 
         private Bitmap canvas;
         private Graphics graphics;
         public VirtualScreen()
         {
-            this.canvas = new Bitmap(this.ScreenWidth, this.ScreenHeight);
+            this.canvas = new Bitmap(this.RenderWidth, this.RenderHeight);
             this.graphics = Graphics.FromImage(this.canvas);
         }
 
@@ -109,5 +109,24 @@ namespace USBScreen
             throw new NotImplementedException();
         }
 
+        public void RenderColor(Rectangle rec, Color color)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderPixels(IEnumerable<Pixel> Pixels)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendRaw(byte[] bytes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetRenderResolution(int width, int height)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

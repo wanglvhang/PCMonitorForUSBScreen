@@ -27,6 +27,8 @@ namespace PCMonitor
         RAM_Free,
         RAM_Load,
 
+        Mainboard_Fan,
+
 
         Network_Upload,
         Network_Download,
